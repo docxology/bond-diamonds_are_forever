@@ -1,11 +1,23 @@
-# Abstract {#sec:abstract}
+# Abstract
 
-This paper presents a convergence study of **fixed-step gradient descent** on a convex quadratic, framed as the computational exemplar of the [Research Project Template](https://github.com/docxology/template). The implementation lives in `projects/working/bond/diamonds_are_forever/src/optimizer.py`; experiments and figures are orchestrated by `projects/working/bond/diamonds_are_forever/scripts/optimization_analysis.py` and hydrated into the manuscript through `scripts/z_generate_manuscript_variables.py`, so tables and prose track `output/data/optimization_results.csv` after every pipeline run.
+**{{CONFLICT_TITLE}}** — codename **{{CONFLICT_CODENAME}}** — is a deterministic
+special-agent mission analysis built on *Diamonds Are Forever* (1971). It fuses
+three independent analytic lines into a single audit: the provenance chain of
+smuggled conflict diamonds, the money-movement network of the Las Vegas casino
+operation that launders their proceeds, and the orbital-mirror targeting
+geometry of the space weapon the proceeds fund.
 
-We evaluate {{CONFIG_NUM_STEP_SIZES}} step sizes from $\alpha = {{CONFIG_MIN_STEP_SIZE}}$ to $\alpha = {{CONFIG_MAX_STEP_SIZE}}$, spanning conservative, near-optimal, aggressive, and divergent regimes for a unit Hessian model. The build chain exercises template infrastructure end-to-end: scientific helpers (`infrastructure.scientific.stability`, `infrastructure.scientific.benchmarking`), validation, rendering (`infrastructure/rendering/pdf_renderer.py`), and reporting. Accessibility-oriented plotting defaults (colourblind-safe palette, 300 dpi exports) are centralized in `src/figures/` and `src/analysis/`.
+The provenance analysis models the custody chain as {{PROVENANCE_TRANSFERS}}
+ordered handoffs and locates {{PROVENANCE_BREAKPOINTS}} undocumented break
+points, giving a documented coverage of {{PROVENANCE_COVERAGE_PCT}} — the
+forensic signature of conflict goods. The casino analysis resolves a
+{{CASINO_CASINOS}}-casino money-movement graph whose laundering closure reaches
+{{CASINO_LAUNDERING_CLOSURE_PCT}}, with the {{CASINO_HUB}} at the centre of the
+wash. The orbital analysis shows that of {{ORBITAL_TARGETS}} threatened cities,
+only {{ORBITAL_VISIBLE_TARGETS}} fall on the mirror's visible face at a
+{{ORBITAL_ALTITUDE_KM}}-km geostationary post — the fundamental beam-geometry
+limit on any such weapon.
 
-Contributions are **methodological** and **architectural**. On the methods side, we relate empirical iteration counts and error decay to the scalar contraction factor $\rho(\alpha) = |1-\alpha|$ and document cases where runs hit $N_{\max} = {{CONFIG_MAX_ITERATIONS}}$ before meeting the gradient tolerance. On the architecture side, we demonstrate a zero-mock test suite on project `src/` (see [test_optimizer.py](https://github.com/docxology/template/blob/main/projects/working/bond/diamonds_are_forever/tests/test_optimizer.py)), automated six-figure analysis, and reproducibility metadata (configuration hash, artifact counts) injected into [@sec:reproducibility].
-
-**Results (this configuration):** {{RESULT_NUM_CONVERGED}} of {{CONFIG_NUM_STEP_SIZES}} grid points report `converged=True` in the CSV; non-convergent rows flag either slow progress at small $\alpha$ under the iteration cap or instability when $|1-\alpha| \geq 1$. The analytical minimizer remains $x^\ast = {{RESULT_OPTIMUM_X}}$ with $f(x^\ast) = {{RESULT_OPTIMUM_F}}$ for the configured $(A,b)$.
-
-**Keywords:** {{CONFIG_KEYWORDS}}
+All results are reproducible: every metric is computed at runtime from fixed
+canonical datasets, no random draws, no mock objects, and every mission outcome
+carries a cryptographic input fingerprint.

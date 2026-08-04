@@ -6,25 +6,17 @@
       "orcid": "0000-0001-6232-9096"
     }
   ],
-  "description": "Source code for Convergence Analysis of Gradient Descent Optimization (2026).",
+  "description": "CONFLICT STONE — special-agent mission software (Diamonds Are Forever, 1971): deterministic conflict-diamond provenance, Las Vegas casino money-movement, and orbital-mirror targeting geometry.",
   "keywords": [
-    "optimization algorithms",
-    "gradient descent",
-    "convergence analysis",
-    "numerical methods",
-    "mathematical programming",
-    "reproducible research",
-    "infrastructure automation"
+    "conflict diamonds",
+    "supply-chain provenance",
+    "money laundering",
+    "network analysis",
+    "orbital targeting geometry",
+    "deterministic mission software"
   ],
   "license": "MIT",
-  "related_identifiers": [
-    {
-      "identifier": "10.5281/zenodo.20417136",
-      "relation": "isVersionOf",
-      "scheme": "doi"
-    }
-  ],
-  "title": "Convergence Analysis of Gradient Descent Optimization",
+  "title": "Diamonds Are Forever: CONFLICT STONE — Special-Agent Mission Software",
   "upload_type": "software",
-  "version": "2.5.2"
+  "version": "0.1.0"
 }

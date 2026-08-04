@@ -1,49 +1,30 @@
-domain: code_research
-display_name: Code Research Exemplar
-required_packages:
-  - numpy
-  - matplotlib
-  - pytest
-preferred_outputs:
-  - pdf
-  - html
-  - docx
-  - epub
-validation_gates:
-  - experiment_method_design
-  - artifact_manifest
-  - evidence_grounding
-  - render_validation
-  - publication_readiness
-figure_types:
-  - convergence_plot
-  - performance_benchmark
-  - sensitivity_analysis
-citation_policy: official_or_scholarly
-source_policy: "Prefer primary project outputs, official package documentation, and scholarly optimization references."
+# Advisory agentic-research controls for diamonds_are_forever (CONFLICT STONE).
+# Declarative intent only — does not execute autonomous agents.
+
+domain: "special-agent mission analysis: conflict-goods provenance, financial-network laundering, orbital targeting geometry"
+
 review_gates:
-  - experiment_method_design
-  - render_validation
-  - publication_readiness
+  - gate: "pytest-coverage"
+    min: 90
+    command: "uv run pytest tests/ --cov=src --cov-fail-under=90"
+  - gate: "ruff"
+    command: "uv run ruff check src/ scripts/"
+  - gate: "mypy"
+    command: "uv run mypy src/ scripts/"
+  - gate: "lineage"
+    description: "no template[_]code_project lineage strings in tracked source"
+
+source_policy:
+  - "canonical datasets are self-contained in the pure domain core (frozen)"
+  - "no live external data; all numbers deterministic and reproducible"
+
 artifact_expectations:
-  - output/data/manuscript_variables.json
-  - output/data/optimization_results.csv
-  - output/figures/convergence_plot.png
-  - output/reports/validation_report.json
-  - output/pdf/template_code_project_combined.pdf
+  - output/figures/provenance_chain.png   # documented vs break points
+  - output/figures/casino_network.png     # money-movement graph
+  - output/figures/orbital_visibility.png # slant-range / visibility
+  - output/data/manuscript_variables.json # resolved {{TOKEN}} map
+  - output/manuscript/                    # hydrated sections
+
 benchmark_rubric:
-  name: code-research-readiness
-  dimensions:
-    - name: output_validity
-      weight: 1.0
-    - name: reproducibility_bundle
-      weight: 1.0
-    - name: artifact_manifest
-      weight: 1.0
-    - name: evidence_grounding
-      weight: 2.0
-    - name: render_success
-      weight: 1.0
-    - name: publication_readiness
-      weight: 1.0
-llm_prompt_guidance: "Use generated optimization artifacts and manuscript variables as the evidence source; do not invent numeric results."
+  - "real computation only, zero mocks"
+  - "deterministic: fixed seed, no untracked RNG, no wall-clock in persisted artifacts"

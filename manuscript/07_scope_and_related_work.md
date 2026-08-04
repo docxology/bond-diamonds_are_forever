@@ -1,24 +1,32 @@
-# Scope, Related Work, and Positioning {#sec:scope}
+# Scope and Related Work
 
-This section situates the exemplar scientifically and states explicit boundaries. The goal is not to compete with monographs on nonlinear programming [@nocedal2006numerical; @bertsekas1999nonlinear], but to show how a minimal, test-backed optimization story fits the template's reproducibility and rendering stack [@peng2011reproducible].
+## Scope
 
-## Classical gradient methods
+This package analyses the three traces central to *Diamonds Are Forever*:
+conflict-diamond provenance, casino money movement, and orbital-mirror
+targeting. It is **self-contained and illustrative**: the canonical datasets
+are fixed, small, and embedded in the pure core. It is not a claim about any
+real investigation, casino, or satellite system; it is a deterministic,
+reproducible demo of the analytic methods, in the tradition of special-agent
+mission models.
 
-Smooth unconstrained minimization via first-order updates has a long lineage, from Cauchy's early descent perspective [@cauchy1847methode] to modern treatments of convex problems [@boyd2004convex] and accelerated gradient schemes [@nesterov2013gradient]. Polyak's classical discussion of gradient convergence factors remains relevant when interpreting empirical iteration counts [@polyak1964some]. The present manuscript restricts attention to **fixed-step** gradient descent on a **convex quadratic**, where rates reduce to scalar linear recurrences in the error ([@sec:results], [@eq:scalar_linear_update]).
+## Related work
 
-## Adaptive and stochastic extensions
+- The conflict-diamond provenance model generalises the supply-chain
+  certification approach documented by the Kimberley Process
+  [@kimberley2003], which formalises the "documented handoff" as the unit of
+  verifiable traceability. The break-point analysis echoes the failure-mode
+  reporting of early conflict-goods investigations [@globalwitness1998].
+- The laundering-closure measure is a deterministic, closure-based variant of
+  circular money-movement detection in financial network analysis: a cycle in
+  a directed weighted graph is the structural signature of value returning to
+  its origin.
+- The orbital targeting is a simple line-of-sight / slant-range geometry; it
+  deliberately omits orbital mechanics, atmospherics, and beam physics, which
+  are out of scope for this mission package. The contrast sets the boundary:
+  this work's contribution is reproducible, deterministic analysis, not a
+  flight-dynamics claim.
 
-Practical machine-learning optimizers (e.g., Adam [@kingma2014adam]) introduce momentum, adaptive preconditioning, or noise from minibatching. Those methods are **out of scope** for `diamonds_are_forever`: the exemplar deliberately keeps the algorithm minimal so that failures (divergent $\alpha$, iteration caps) are interpretable without confounding from stochastic sampling or line-search logic.
-
-## What this project proves about the template
-
-The scientific claims through [@sec:introduction], [@sec:methodology], and [@sec:results] are standard textbook material. The **non-standard** contribution is procedural: configuration in `manuscript/config.yaml` drives `run_convergence_experiment()`, figures, CSV exports, and `RESULT_*` token substitution (`scripts/z_generate_manuscript_variables.py`) so that PDF, HTML, and validation logs refer to the same numbers. That pattern is what downstream projects should copy—whether the domain is optimization, differential equations, or Bayesian workflows.
-
-## Explicit limitations
-
-1. **Dimensionality**: Default experiments emphasize $d = 1$ with $A = I$ for transparent plotting; the benchmark figure explores $d > 1$ only with identity Hessians, so no ill-conditioning effects appear.
-2. **Step-size policy**: Only constant $\alpha$ is implemented in `src/optimizer.py`; there is no Wolfe or Armijo backtracking.
-3. **Global optimization**: Convexity is assumed; no basin-hopping or restarts are studied.
-4. **Numerical model**: Double-precision floating point only; no interval or arbitrary-precision analysis.
-
-These limitations are intentional: they narrow the failure surface so that infrastructure concerns—tests, logging, figure registration, and PDF cross-references—remain visible rather than buried under algorithmic complexity.
+The package also documents its own platform: CONFLICT STONE ({{CONFLICT_TITLE}})
+is one member of the PROJECT BOND suite, which shares the frozen BOND-API
+mission protocol [@bondapi2026].

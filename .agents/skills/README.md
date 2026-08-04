@@ -6,7 +6,7 @@ contract), and `README.md` (pointer).
 
 | Skill | Purpose |
 | --- | --- |
-| [`diamonds-are-forever/`](diamonds-are-forever/README.md) | Drive this exemplar end-to-end (commands, pitfalls, contract traceability). |
+| [`diamonds-are-forever/`](diamonds-are-forever/README.md) | Build/maintain this BOND film package (commands, pitfalls, contract traceability). |
 
 Load [`diamonds-are-forever/SKILL.md`](diamonds-are-forever/SKILL.md)
-when working inside the exemplar or forking it as a scaffold.
+when working inside the package.

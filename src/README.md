@@ -1,82 +1,15 @@
-# src/ - Project Logic
+# src/ — diamonds_are_forever (CONFLICT STONE)
 
-Core optimization algorithms, shared experiment configuration, analysis builders, figure generators, dashboard payloads, and manuscript-variable extraction for the code exemplar. Mathematical primitives stay pure; generated-output workflows live in importable modules so scripts remain thin wrappers.
+Pure analytic core + mission adapter for the BOND film package.
 
-## Quick Start
+| Module | Role | Imports |
+|---|---|---|
+| `provenance_chain.py` | conflict-diamond custody graph, break points, coverage, origin | stdlib only |
+| `casino_network.py` | Las Vegas money movement: hub, cycles, laundering closure | stdlib only |
+| `orbital_mirror.py` | orbital targeting: occultation, slant range, beam delivery | stdlib only |
+| `mission.py` | `MissionProvider` adapter (CONFLICT STONE) + gadgets | core + `bond_api` |
+| `manuscript_variables.py` | `{{TOKEN}}` hydration | core + `yaml` |
+| `figures.py` | deterministic PNG figures | core + `matplotlib` |
 
-```python
-import logging
-
-import numpy as np
-from optimizer import gradient_descent, quadratic_function
-
-logger = logging.getLogger(__name__)
-
-# Simple optimization example
-result = gradient_descent(
-    initial_point=np.array([0.0]),
-    objective_func=lambda x: quadratic_function(x),
-    gradient_func=lambda x: x - 1,  # Gradient of f(x) = 0.5*x^2 - x
-    step_size=0.1
-)
-
-logger.info(f"Optimal solution: {result.solution}")
-```
-
-## Key Features
-
-- **Gradient descent** optimization algorithm
-- **Quadratic function** evaluation, gradients, and analytical optimum (`quadratic_optimum`)
-- **Shared experiment config** in `experiment_config.py` (single loader for `manuscript/config.yaml`)
-- **Importable analysis pipeline** in `analysis/`
-- **Matplotlib figures** in `figures/`
-- **Plotly dashboard builder** in `dashboard.py`
-- **Manuscript `{{TOKEN}}` map** in `manuscript_variables.py`
-- **API reference builder** in `documentation.py` (invoked by `scripts/generate_api_docs.py`)
-- **Reproducible results** with deterministic behavior
-- **Type-safe** with type hints
-
-## Common Commands
-
-### Import and Use
-
-```python
-from experiment_config import load_experiment_config
-from optimizer import (
-    gradient_descent,
-    quadratic_function,
-    compute_gradient,
-    quadratic_optimum,
-    OptimizationResult,
-)
-
-cfg = load_experiment_config()
-x_star, f_star = quadratic_optimum(cfg.A_array(), cfg.b_array())
-```
-
-### Run Tests
-
-```bash
-cd projects/working/bond/diamonds_are_forever
-uv run pytest tests/ --cov=src --cov-fail-under=90
-```
-
-## Architecture
-
-```mermaid
-graph TD
-    YAML[manuscript/config.yaml] --> CFG[experiment_config.py]
-    CFG --> ANA[analysis/]
-    CFG --> FIG[figures/]
-    CFG --> DASH[dashboard.py]
-    CFG --> VARS[manuscript_variables.py]
-
-    ANA --> OPT[optimizer.py]
-    FIG --> OPT
-    DASH --> OPT
-    VARS --> OPT
-```
-
-## More Information
-
-See [AGENTS.md](AGENTS.md) for technical documentation.
+The first three modules are **pure** and importable without `bond_api`;
+`mission.py` is the thin, sole adapter to the frozen protocol.

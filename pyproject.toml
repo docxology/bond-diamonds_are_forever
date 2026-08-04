@@ -1,5 +1,6 @@
-# Code Project Configuration
-# Inherits workspace settings from root pyproject.toml
+# Diamonds Are Forever — PROJECT BOND film package · mission codename CONFLICT STONE
+# Pure domain core (provenance chain, casino network, orbital mirror) with a
+# MissionProvider adapter over the frozen BOND-API protocol.
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -7,38 +8,40 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "diamonds_are_forever"
-version = "2.5.2"
+version = "0.1.0"
 license = {text = "MIT"}
-description = "Fully-tested codebase with numerical optimization and analysis"
+description = "CONFLICT STONE — special-agent mission software: conflict-diamond provenance, Las Vegas casino money movement, orbital-mirror targeting geometry"
 authors = [
     {name = "Daniel Ari Friedman", email = "daniel@activeinference.institute"}
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=1.24.0",
+    "bond-api",
     "matplotlib>=3.7.0",
     "pyyaml>=6.0",
-    "defusedxml>=0.7.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    "ruff>=0.6.0",
+    "mypy>=1.10.0",
+    "types-PyYAML>=6.0",
 ]
 
+# bond-api is the frozen protocol dependency, consumed as a local path package.
+[tool.uv.sources]
+bond-api = { path = "/Users/4d/Documents/GitHub/template/projects/working/bond/bond-api" }
+
 [tool.pytest.ini_options]
-# RASP Strict Assertion: Tests must be clearly separated and structurally identifiable
 pythonpath = [".", "src"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-# `--strict-markers` prevents typos in marker definitions
 addopts = "-v --tb=short --strict-markers"
 
 [tool.coverage.run]
-# Core Template Rule: We only calculate coverage for primary source code (`src/`),
-# ensuring test code itself does not artificially inflate metric scores.
 source = ["src"]
 branch = true
 omit = [
@@ -48,8 +51,6 @@ omit = [
 ]
 
 [tool.coverage.report]
-# ≥90% on src/ is the enforced gate; live coverage % is tracked in
-# docs/_generated/COUNTS.md (do not hardcode it here — it drifts).
 fail_under = 90
 show_missing = true
 precision = 2
@@ -59,5 +60,23 @@ exclude_lines = [
     "raise NotImplementedError",
 ]
 
+[tool.mypy]
+# Project-local mypy config (the monorepo root has no mypy_path for this
+# package's src/ layout). Stricter typing with explicit package bases.
+python_version = "3.12"
+mypy_path = ["src"]
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+
 [tool.uv]
-# Inherits workspace settings from root pyproject.toml
+# Standalone package in the BOND suite; not a workspace member.

@@ -1,6 +1,6 @@
 # diamonds-are-forever skill — AGENTS.md
 
-Project-scoped skill bundle for the `diamonds_are_forever` exemplar.
+Project-scoped skill bundle for the `diamonds_are_forever` BOND film package.
 
 | File | Purpose |
 | --- | --- |
@@ -12,10 +12,6 @@ Project-scoped skill bundle for the `diamonds_are_forever` exemplar.
 
 Agents that need to:
 
-- Drive the in-repo exemplar end-to-end.
-- Fork this exemplar as a starting scaffold.
-- Verify layer boundaries and thin-orchestrator contracts.
-
-## Cross-refs
-
-- Project root: [`../../..`](../../../).
+- Build or maintain the CONFLICT STONE mission package end-to-end.
+- Verify layer boundaries (pure core vs. `bond_api` adapter).
+- Keep the coverage gate, ruff/mypy, and the manuscript token gate green.

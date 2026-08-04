@@ -1,10 +1,12 @@
-# References {#sec:references}
+# References
 
-Bibliography lives in [`manuscript/references.bib`](references.bib) and is read by Pandoc during PDF render. The build pipeline invokes Pandoc with `--natbib`, so every `[@key]` citation in the manuscript is rewritten to the appropriate `\cite{}`/`\citep{}`/`\citet{}` LaTeX command and resolved against the bib file.
+[@friedman2026conflictstone] — the primary manuscript source for this package.
 
-To validate that `references.bib` is syntactically clean and contains the required fields per entry type:
+[@bondapi2026] — the frozen BOND-API mission protocol contract that every film
+package implements.
 
-```bash
-uv run python -m infrastructure.reference.citation.cli validate \
-    projects/working/bond/diamonds_are_forever/manuscript/references.bib --strict
-```
+[@globalwitness1998] — foundational documentation of conflict-diamond trade
+routes and their provenance gaps.
+
+[@kimberley2003] — the Kimberley Process Certification Scheme, the provenance
+standard this work's break-point model formalises.

@@ -1,68 +1,51 @@
-# diamonds_are_forever TODO
+# diamonds_are_forever — CONFLICT STONE TODO
 
-Forward-only backlog for the code-first numerical exemplar — the reference
-thin-orchestrator control-positive path for code-centric research projects.
+Forward-only backlog for the BOND film package **Diamonds Are Forever (1971)**.
 
-## Current validation evidence
+## What is built (phase 2)
 
-- Manuscript pre-render gate: `uv run python -m infrastructure.validation.cli prerender projects/working/bond/diamonds_are_forever/manuscript --repo-root .`
-- Project tests and coverage: `uv run pytest projects/working/bond/diamonds_are_forever/tests/ --cov=projects/working/bond/diamonds_are_forever/src --cov-fail-under=90`
-- Stage 02 analysis must write `output/data/optimization_results.csv` before strict manuscript-variable generation: `uv run python scripts/pipeline/stage_02_analysis.py --project templates/diamonds_are_forever`
-- Stage 03 manuscript render: `uv run python scripts/pipeline/stage_03_render.py --project templates/diamonds_are_forever`
-- Stage 04 output validation: `uv run python scripts/pipeline/stage_04_validate.py --project templates/diamonds_are_forever`
-- Repo drift gate: `uv run python scripts/audit/check_template_drift.py --strict`
-- Code quality: `uv run ruff check projects/working/bond/diamonds_are_forever/src/` and `uv run mypy projects/working/bond/diamonds_are_forever/src/` must both pass clean.
-- Benchmark reproducibility: tracked benchmark reports and figures contain only deterministic facts; wall-clock timing is logged as a runtime diagnostic, and two-run byte-equality tests enforce the boundary.
-- Live test count and measured coverage percentage → [`docs/_generated/COUNTS.md`](../../../docs/_generated/COUNTS.md) (regenerated, never hardcoded here; both numbers drift faster than this file).
+| Module | Concept |
+|---|---|
+| `src/diamonds_are_forever/provenance_chain.py` | Conflict-diamond custody graph; break points; coverage; origin tracing |
+| `src/diamonds_are_forever/casino_network.py` | Directed weighted casino transfers; net/gross flow; hub; money cycles; laundering closure |
+| `src/diamonds_are_forever/orbital_mirror.py` | Orbital-mirror targeting: occultation, slant range, elevation, beam delivery |
+| `src/diamonds_are_forever/mission.py` | `MissionProvider` adapter (CONFLICT STONE) + gadget registration + input fingerprint |
+| `src/diamonds_are_forever/manuscript_variables.py` | `{{TOKEN}}` hydration from `manuscript/config.yaml` + analytic core |
+| `src/diamonds_are_forever/figures.py` | Deterministic provenance / casino / orbital figures |
 
-## Accuracy pass — 2026-08-02 (measured)
+Thin CLIs in `scripts/`: `brief.py`, `recon.py`, `plan.py`, `execute.py`,
+`debrief.py`, `run_mission.py`, `generate_figures.py`,
+`z_generate_manuscript_variables.py`.
 
-- Prerender: clean (no render-blocking pitfalls, no undefined citations).
-- pytest: **242 passed**, **97.67 %** coverage on `src/` (floor 90 %).
-- Stage 02: 8/8 analysis scripts; 46 manuscript variables generated.
-- Stage 03: combined PDF rendered (25 pages), `Valid PDFs: 1/1`; 0 `^! ` lines in compile logs; 0 `??` in `pdftotext`.
-- Stage 04: all checks pass (PDF, bookends, markdown, structure, figure registry, evidence registry, design overlays, artifact manifest); rendered-provenance receipt written (54 sources / 18 config / 72 outputs).
-- Drift: `check_template_drift.py --project templates/diamonds_are_forever --strict` → no drift detected.
+## Verification evidence
 
-### Fixed in this pass
+- `uv run pytest tests/ --cov=src --cov-fail-under=90` → passing, ~98% coverage
+  (floor 90%).
+- ruff `check` + `format` clean on `src/` and `scripts/`; mypy clean on
+  `src/` and `scripts/`.
+- Lineage `rg template[_]code_project` → zero in tracked source.
+- Deterministic: end-to-end `run_mission.py` is byte-stable; mission outcomes
+  carry a SHA-256 input fingerprint.
 
-- `fig:complexity` caption corrected to the actual 3×2 six-panel layout; replaced the false "both saturate at the iteration cap" claim (α=2.5 terminates via `non_finite`) and described the stability-width and cross-profile bottom panels.
-- Agency-category boundary corrected to the code's `α < 0.3` threshold (`manuscript/03_results.md`).
-- Removed literal `{{CONFIG_*}}` / `{{RESULT_*}}` wildcard prose in `01_introduction.md` and `07_scope_and_related_work.md` so the rendered PDF no longer leaks raw braces.
-- `scripts/AGENTS.md` + `scripts/README.md`: listed the on-disk `04_benchmark_stage.py`, `08_connector_search.py`, `09_provenance_record.py`, `10_research_workflow.py`, `__init__.py`; replaced stale `[0.01, 0.05, 0.1, 0.2]` step-size grids with the configured six-value grid.
-- `tests/AGENTS.md` + `tests/README.md`: added `test_benchmark_support.py` to diagram, class line, and bullets.
-- Root `AGENTS.md`: refreshed `SRC_F` / `M_F` mermaid listings, ProgressBar grid, stray `##` heading.
-- `docs/AGENTS.md`: corrected the `{{VARIABLE}}` token count (28 → 46) and stale per-file line counts; `docs/syntax_guide.md`: `CONFIG_VERSION` 2.5.2, added missing `RESULT_*` / `ARTIFACT_*` / `STABILITY_FUNCTION` rows, corrected the "never use `\begin{equation}`" guidance (the manuscript uses that form and it resolves).
-- `manuscript/AGENTS.md`: version 2.5.2; File Inventory token lists now match the live per-file `{{TOKEN}}` usage exactly (verified programmatically).
-- `docs/README.md`: removed the stale "127 files, 14 subdirectories" literal (COUNTS.md is authoritative).
-- Added `.agents/README.md` and `.agents/skills/README.md` per the shared exemplar catalog contract; all relative cross-references resolve.
+## Declared integration points
 
-## Integrity and template-status gaps
+- **bond-api protocol (FROZEN)**: implemented. `mission.py` adapts the frozen
+  `MissionProvider` contract from the local `bond-api` path dependency.
+- **bond-utilities provenance**: not yet consumed. Integration point: delegate
+  outcome persistence to `bond_utilities.mission_io.record_provenance_outcome`
+  once bond-utilities ships. Acceptance: a mission record lands under
+  `output/data/` with a full `provenance` block. Until then the package keeps
+  its own `mission_input_hash` (SHA-256) — no rework needed to bind.
+- **orchestrator discovery**: `mission.py` exposes `MissionProvider` at module
+  top level under the stable name; the orchestrator will discover it by slug
+  `diamonds_are_forever` via `bond_api.discovery`.
 
-- Keep this exemplar as the smallest reliable control-positive path for code-centric research projects.
-- Keep dashboard, API docs, figures, and manuscript variables generated from source, not hand-maintained output snapshots.
-- Add a project-local output validation script only if it checks artifacts beyond the generic Stage 04 validators.
-- Add or document a stable final artifact-manifest refresh path for single-stage analysis/render/copy checks. **Documented:** `infrastructure.core.pipeline.artifacts.snapshot_current_artifact_manifest` serves this role.
+## Improvement ladder
 
-## Configurable-surface gaps
-
-- Keep `manuscript/config.yaml.example` as the richer copy-and-customize template for publication, LLM, testing, and steganography toggles.
-- Add any future optimizer hyperparameter config under typed source loaders rather than reading ad hoc YAML from scripts.
-
-## Documentation and signposting gaps
-
-- Keep README quick-start commands aligned with the qualified project name `templates/diamonds_are_forever`.
-- Link new public artifacts from README, AGENTS, and `docs/_generated/exemplar_roster.md` through the generator.
-
-## Test and validator gaps
-
-- Add a negative control before widening optimizer claims beyond the bundled deterministic objectives.
-- Add dashboard schema assertions whenever dashboard fields or chart payloads change.
-- Close remaining infrastructure-path branch misses in `analysis/scientific_reports.py` and `analysis/workflow.py` with subprocess isolation tests mirroring `TestImportFallback` if coverage gates tighten further.
-
-## Ordered improvement ladder
-
-1. Preserve the strict analysis-to-manuscript variable contract.
-2. Add focused validators for any new generated artifact family.
-3. Expand benchmark scenarios only with deterministic seeds, expected-shape tests, and documented claim boundaries.
-4. Refresh generated docs after any public-surface change.
+1. Add a provenance-export CLI that writes canonical inputs + outcome to JSON
+   (feeds the bond-utilities integration point).
+2. Surface more orbital targets / a per-target elevation table in the figure.
+3. Add optional sensitivity sweeps over mirror area / spot radius behind the
+   deterministic defaults.
+4. Refresh `docs/_generated/COUNTS.md` equivalents only if this tree is ever
+   wired back into the monorepo pipeline (currently standalone/local-only).

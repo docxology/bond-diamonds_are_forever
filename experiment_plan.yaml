@@ -1,25 +1,30 @@
+# Experiment plan for diamonds_are_forever (CONFLICT STONE).
+# Three deterministic analyses over frozen canonical datasets; no RNG.
+
 conditions:
-  - name: conservative_step
-    role: reference
-    description: "Stable gradient-descent step below the spectral bound."
-  - name: near_optimal_step
-    role: proposed
-    description: "Template-recommended step near the stable convergence region."
-  - name: aggressive_step
-    role: variant
-    description: "Stress condition near or above the stability boundary."
-metrics:
-  primary:
-    name: objective_value
-    direction: minimize
-protocol: "Run the deterministic quadratic optimization sweep with identical initialization, seeds, tolerance, and iteration cap across all declared step-size conditions."
-expected_figures:
-  - fig:convergence_plot
-  - fig:performance_benchmark
-  - fig:step_size_sensitivity
-expected_tables:
-  - tbl:optimization_results
-baselines:
-  - conservative_step
-ablations:
-  - aggressive_step
+  - id: provenance_chain
+    description: "conflict-diamond custody chain: 5 handoffs, mine->fence"
+    primary_metric: "documented coverage (recorded / total handoffs)"
+    expected: 0.6
+    baseline: "fully-documented chain (coverage 1.0)"
+    ablation: "drop the two undocumented smuggling hops -> conflict-free"
+  - id: casino_network
+    description: "Las Vegas money movement: 7 casinos, 9 transfers"
+    primary_metric: "laundering closure (share of flow on money cycles)"
+    expected: 0.7742
+    baseline: "one-way pass-through (closure 0.0)"
+    ablation: "remove cycle edges -> closure falls to 0"
+  - id: orbital_mirror
+    description: "geostationary mirror over Las Vegas at 36,000 km, 3 targets"
+    primary_metric: "visible-face count (2 of 3) + slant range per target"
+    expected_visible: 2
+    baseline: "sub-satellite target always visible"
+    ablation: "place target on far side -> occulted (not visible)"
+
+primary_metric: "deterministic reproduction of all three result tokens with zero mocks"
+figures:
+  expected: 3
+  output_dir: output/figures
+manuscript_tokens:
+  block: "manuscript/config.yaml + src/diamonds_are_forever/manuscript_variables.py"
+  cross-ref_gate: "every {{TOKEN}} in manuscript/[0-9]*.md resolves"

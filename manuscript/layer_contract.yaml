@@ -1,5 +1,38 @@
-# Code-centric exemplar: optional monorepo adapters only.
-allow_infrastructure_imports:
-  - src/analysis/_infra.py
-  - src/_runtime.py
-  - src/benchmark_support.py
+# Layer contract for diamonds_are_forever (CONFLICT STONE).
+layers:
+  - name: "pure_core"
+    modules:
+      - "src/diamonds_are_forever/provenance_chain.py"
+      - "src/diamonds_are_forever/casino_network.py"
+      - "src/diamonds_are_forever/orbital_mirror.py"
+    imports_allowed:
+      - "stdlib"
+    imports_forbidden:
+      - "bond_api"
+      - "infrastructure"
+    note: "must stay importable standalone"
+  - name: "adapter"
+    modules:
+      - "src/diamonds_are_forever/mission.py"
+    imports_allowed:
+      - "pure_core"
+      - "bond_api"
+    note: "sole importer of bond_api; implements frozen MissionProvider"
+  - name: "manifest_figures"
+    modules:
+      - "src/diamonds_are_forever/manuscript_variables.py"
+      - "src/diamonds_are_forever/figures.py"
+    imports_allowed:
+      - "pure_core"
+      - "yaml"
+      - "matplotlib"
+    imports_forbidden:
+      - "bond_api"
+  - name: "scripts"
+    modules:
+      - "scripts/"
+    imports_allowed:
+      - "adapter"
+      - "pure_core"
+      - "bond_api"
+    note: "thin orchestrators only"

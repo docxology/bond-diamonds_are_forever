@@ -1,53 +1,38 @@
----
-name: diamonds-are-forever
-description: Code-centric optimization research exemplar — gradient descent, convergence analysis, automated figures, dashboard, and publication-quality PDF.
-version: 0.1.0
-author: docxology
-license: MIT
-tags: [exemplar, code, optimization, thin-orchestrator]
----
+# diamonds-are-forever (CONFLICT STONE) — skills
 
-# diamonds-are-forever
+## When to use
 
-Project-scoped skill for the in-repo exemplar at
-`projects/working/bond/diamonds_are_forever/`. Load this when working inside the project.
+Use when building or maintaining the **diamonds_are_forever** BOND film
+package (`projects/working/bond/diamonds_are_forever/`), mission codename
+**CONFLICT STONE**: conflict-diamond provenance, Las Vegas casino money
+movement, and orbital-mirror targeting geometry.
 
-## When to Use
+## Key facts
 
-- Working inside the `diamonds_are_forever` exemplar — running scripts, editing source,
-  or regenerating outputs.
-- Forking this exemplar as the starting scaffold for a new research project.
-- Validating that the exemplar's contracts (thin-orchestrator, layer boundaries,
-  no-mocks testing) still hold after changes.
+- Pure domain core: `src/diamonds_are_forever/{provenance_chain,casino_network,orbital_mirror}.py`
+  (stdlib only, no `bond_api`/`infrastructure`).
+- Adapter: `src/diamonds_are_forever/mission.py` implements the frozen
+  `bond_api` `MissionProvider` (brief/recon/plan/execute/debrief) and registers
+  gadgets; discovered by slug `diamonds_are_forever`.
+- Manifest: `manuscript_variables.py` hydrates `{{TOKEN}}`s from
+  `manuscript/config.yaml` + the core; `figures.py` renders deterministic PNGs.
 
-## Quick Reference
+## Quick commands
 
 ```bash
-# From the repository root
-uv run pytest projects/working/bond/diamonds_are_forever/tests --cov=projects/working/bond/diamonds_are_forever/src --cov-fail-under=90
-uv run python scripts/pipeline/stage_02_analysis.py --project templates/diamonds_are_forever
-uv run python scripts/pipeline/stage_03_render.py --project templates/diamonds_are_forever
-uv run python scripts/pipeline/stage_04_validate.py --project templates/diamonds_are_forever
-uv run python scripts/pipeline/stage_05_copy.py --project templates/diamonds_are_forever
+uv sync --extra dev                                    # install (wires bond-api path dep)
+uv run pytest tests/ --cov=src --cov-fail-under=90      # coverage gate
+uv run ruff check src/ scripts/ && uv run ruff format src/ scripts/
+uv run mypy src/ scripts/
+uv run python scripts/run_mission.py --json             # full flow
+uv run python scripts/generate_figures.py
+uv run python scripts/z_generate_manuscript_variables.py
 ```
 
 ## Pitfalls
 
-- **Keep scripts thin.** Business logic belongs in `src/` or shared
-  `infrastructure/`, not in `scripts/`.
-- **No mocks.** All tests must use real data, real files, and real
-  computation.
-- **Outputs are disposable.** Never hand-edit `output/` — regenerate from
-  source and config.
-- **Keep tracked benchmarks deterministic.** Serialize reproducible inputs,
-  objective values, and checks; keep wall-clock timing as a runtime-only
-  diagnostic.
-- **Run from the repo root.** Commands assume the template monorepo root
-  as working directory unless the child `AGENTS.md` states otherwise.
-
-## Cross-refs
-
-- Project contract: [`AGENTS.md`](../../../AGENTS.md)
-- README: [`README.md`](../../../README.md)
-- TODO: [`TODO.md`](../../../TODO.md)
-- Exemplar roster: [`projects/AGENTS.md`](../../../../../AGENTS.md)
+- Pure core must never import `bond_api`; `mission.py` is the sole adapter.
+- Regenerate `output/` (git-ignored) after changes so the tree stays clean.
+- The manuscript token cross-reference gate scans only `manuscript/[0-9]*.md`;
+  guide files may show literal `{{TOKEN}}` braces but numbered sections must not.
+- No mocks anywhere; deterministic canonical datasets only.

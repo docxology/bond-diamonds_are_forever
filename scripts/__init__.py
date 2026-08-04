@@ -1,1 +1,1 @@
-"""Thin orchestrator scripts for diamonds_are_forever."""
+"""BOND film package `diamonds_are_forever` — thin mission orchestrators."""

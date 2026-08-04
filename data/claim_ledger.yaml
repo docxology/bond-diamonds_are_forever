@@ -1,57 +1,40 @@
+# Claim ledger for diamonds_are_forever (CONFLICT STONE).
+# Registers the sourced, deterministic numeric claims the manuscript relies on.
+# Each claim traces to a live computation in the pure domain core, never a
+# hand-stated number.
+
 claims:
-  - claim_id: figure-export-dpi
-    kind: number
-    value: 300
-    source: projects/working/bond/diamonds_are_forever/src/viz_config.py plotting defaults (dpi)
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/convergence_plot.png
-  - claim_id: step-size-sensitivity-cap
-    kind: number
-    value: 500
-    source: projects/working/bond/diamonds_are_forever/src/sweeps.py sensitivity_sweep max_iter cap
-    source_tier: generated_metric
-    freshness: active
-    artifact_path: output/figures/step_size_sensitivity.png
-  - claim_id: stability-log-lower
-    kind: number
-    value: -6
-    source: projects/working/bond/diamonds_are_forever/src/figures/scientific_stability.py stability visualization caption
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: solution-relative-error-exponent
-    kind: number
-    value: -4
-    source: projects/working/bond/diamonds_are_forever/manuscript/03_results.md stated precision threshold
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: manuscript/03_results.md
-  - claim_id: stability-log-upper
-    kind: number
-    value: -9
-    source: projects/working/bond/diamonds_are_forever/src/figures/scientific_stability.py stability visualization caption
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: benchmark-tolerance-exponent
-    kind: number
-    value: -10
-    source: projects/working/bond/diamonds_are_forever/scripts/optimization_analysis.py dimensional benchmark tolerance
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-min-iterations
-    kind: number
-    value: 219
-    source: projects/working/bond/diamonds_are_forever/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-max-iterations
-    kind: number
-    value: 238
-    source: projects/working/bond/diamonds_are_forever/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
+  - id: provenance.transfers
+    value: 5
+    source: "provenance_chain.canonical_transfers()"
+    determinism: "frozen canonical dataset"
+  - id: provenance.breakpoints
+    value: 2
+    source: "provenance_chain.break_points(canonical_transfers())"
+  - id: provenance.coverage
+    value: 0.6
+    source: "provenance_chain.provenance_coverage(canonical_transfers())"
+  - id: casino.casinos
+    value: 7
+    source: "casino_network.canonical_network().casinos()"
+  - id: casino.total_flow_m
+    value: 31.0
+    source: "casino_network.canonical_network().total_flow()"
+  - id: casino.hub
+    value: "whyte_house"
+    source: "casino_network.canonical_network().hub()"
+  - id: casino.money_cycles
+    value: 3
+    source: "casino_network.canonical_network().find_money_cycles()"
+  - id: casino.laundering_closure
+    value: 0.7742
+    source: "casino_network.canonical_network().laundering_closure()"
+  - id: orbital.altitude_km
+    value: 36000
+    source: "orbital_mirror.canonical_satellite().altitude_km"
+  - id: orbital.targets
+    value: 3
+    source: "orbital_mirror.canonical_targets()"
+  - id: orbital.visible
+    value: 2
+    source: "orbital_mirror.is_visible(satellite, target) over canonical_targets()"
