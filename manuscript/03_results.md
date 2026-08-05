@@ -21,9 +21,12 @@ Across a {{SMUGGLE_CORRIDORS}}-corridor network moving a
 **{{SMUGGLE_ROUTE}}** at an expected cost of {{SMUGGLE_EXPECTED_COST_M}} M USD,
 carrying the cargo with survival {{SMUGGLE_SURVIVAL_PCT}} (seizure exposure
 {{SMUGGLE_EXPOSURE_PCT}}). The fewest-hops baseline in the same graph
-({{SMUGGLE_NAIVE_ROUTE}}) costs {{SMUGGLE_NAIVE_COST_M}} M USD, so pricing
-seizure risk cuts expected cost by {{SMUGGLE_REDUCTION_PCT}}: the optimum
-accepts one extra hop to avoid the expensive Channel leg. Figure
+({{SMUGGLE_NAIVE_ROUTE}}) costs {{SMUGGLE_NAIVE_COST_M}} M USD, so optimising
+over expected cost rather than hop count cuts expected cost by
+{{SMUGGLE_REDUCTION_PCT}}: at the same hop count, the optimum swaps the pricey
+London-Amsterdam Channel ferry for the cheaper Paris leg. The two routes carry
+almost the same seizure exposure — the saving is on transport cost, not on
+seizure risk, which is why the survival probabilities barely differ. Figure
 [@fig:smuggling] plots the corridor expected costs with the optimum route
 marked.
 
@@ -57,15 +60,37 @@ laundering closure — the share of flow that circulates — is
 
 ## Benford's-law ledger audit
 
-The {{BENFORD_TRANSACTIONS}}-transaction casino ledger yields a chi-square
-statistic of **{{BENFORD_CHI_SQUARE}}** against Benford's law, well above the
-df={{BENFORD_DF}}, alpha={{BENFORD_ALPHA}} critical value of
-{{BENFORD_CRITICAL_VALUE}} — a verdict of **{{BENFORD_VERDICT}}**. Figure
-[@fig:benford] compares the observed leading-digit distribution with the
-Benford expectation; the excess sits on the digits 1, 2, and 5, the signature
-of round-figure deposits rather than naturally scaled amounts.
+The audit is reported as a matched pair, so that the anomalous verdict can be
+attributed to something.
 
-![Casino ledger vs. Benford's law](../output/figures/benford_ledger.png){#fig:benford}
+**Negative control.** The legitimate baseline alone —
+{{BENFORD_LEGIT_TRANSACTIONS}} transactions whose leading digits are the
+Fibonacci leading digits, Benford-distributed by theorem rather than by
+construction against the test — scores a chi-square of
+**{{BENFORD_LEGIT_CHI_SQUARE}}**, far below the {{BENFORD_CRITICAL_VALUE}}
+critical value: a verdict of **{{BENFORD_LEGIT_VERDICT}}**. The screen does not
+fire on clean books.
+
+**Full ledger.** Adding the {{BENFORD_LAUNDERED_TRANSACTIONS}} round-figure
+deposits takes the same statistic, computed by the same code path, to
+**{{BENFORD_CHI_SQUARE}}** over {{BENFORD_TRANSACTIONS}} transactions — above
+the df={{BENFORD_DF}}, alpha={{BENFORD_ALPHA}} critical value of
+{{BENFORD_CRITICAL_VALUE}}, a verdict of **{{BENFORD_VERDICT}}**. Because the
+baseline passes on its own, the flag is attributable to the deposits and not
+to the baseline.
+
+Figure [@fig:benford] plots all three distributions — baseline, full ledger,
+Benford expectation — so the separation is visible. Digit {{BENFORD_CARRIER_DIGIT}}
+alone carries {{BENFORD_CARRIER_SHARE_PCT}} of the statistic — the 5 x 10^n
+structuring. The full ledger runs above the Benford expectation on exactly the
+digits the deposits sit on (1, 2 and 5) and below it on every other digit.
+
+This is a specificity check on two constructed fixtures, not a measurement of
+detection accuracy: it shows the implemented test separates *these* halves. No
+false-positive or false-negative rate is estimated here, and none should be
+read off it.
+
+![Casino ledger vs. Benford's law: legitimate baseline (negative control), full ledger, and the Benford expectation](../output/figures/benford_ledger.png){#fig:benford}
 
 ## Orbital-mirror targeting
 

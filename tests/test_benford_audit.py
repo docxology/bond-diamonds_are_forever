@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
+import yaml
 
 from diamonds_are_forever import benford_audit as ba
 from diamonds_are_forever.benford_audit import (
@@ -72,8 +74,15 @@ def test_benford_chi_square_empty_is_zero() -> None:
 
 
 def test_benford_chi_square_behind_a_law_conforming_ledger_is_small() -> None:
+    """A near-Benford count set must land *below the critical value*, not merely low.
+
+    The bound is the critical value the audit actually applies. An earlier
+    ``< 20.0`` bound sat above 15.507, so it would have passed a count set the
+    audit itself flags as anomalous — it could not distinguish conforming from
+    anomalous at all.
+    """
     counts = {1: 30, 2: 18, 3: 12, 4: 10, 5: 8, 6: 7, 7: 6, 8: 5, 9: 4}
-    assert benford_chi_square(counts) < 20.0
+    assert benford_chi_square(counts) < BENFORD_CRITICAL_VALUE_05
 
 
 def test_benford_chi_square_single_digit_ledger_is_huge() -> None:
@@ -92,7 +101,7 @@ def test_benford_chi_square_rejects_non_mapping() -> None:
 
 def test_canonical_ledger_is_anomalous() -> None:
     report = benford_report(canonical_ledger_amounts())
-    assert report.transactions == 101
+    assert report.transactions == 141
     assert report.chi_square > BENFORD_CRITICAL_VALUE_05
     assert report.conforms is False
     assert report.critical_value == BENFORD_CRITICAL_VALUE_05
@@ -197,10 +206,142 @@ def test_critical_value_metadata_is_self_consistent() -> None:
     assert report.conforms is (report.chi_square <= ba.BENFORD_CRITICAL_VALUE_05)
 
 
-def test_canonical_ledger_docstring_count_matches_the_data() -> None:
-    """The ledger's stated composition (40 natural + 61 round) must be the real one."""
-    amounts = ba.canonical_ledger_amounts()
-    assert len(amounts) == 101
-    round_deposits = [a for a in amounts if a >= 10000.0]
-    assert len(round_deposits) == 61
-    assert len(amounts) - len(round_deposits) == 40
+def test_canonical_ledger_is_exactly_its_two_documented_halves() -> None:
+    """The ledger's stated composition must be the real one, in order."""
+    legitimate = ba.legitimate_ledger_amounts()
+    laundered = ba.laundered_deposit_amounts()
+    assert len(legitimate) == ba.LEGITIMATE_LEDGER_SIZE == 80
+    assert len(laundered) == 61
+    assert ba.canonical_ledger_amounts() == legitimate + laundered
+
+
+# ------------------------------------------------- negative control (specificity)
+
+
+def test_legitimate_baseline_conforms_the_negative_control() -> None:
+    """THE NEGATIVE CONTROL: the audit must *not* fire on the legitimate half.
+
+    Without this the package would only ever have shown the test firing, which
+    is equally consistent with a test that fires on every ledger. This
+    assertion is what makes the anomalous verdict on the full ledger mean
+    something.
+    """
+    report = benford_report(ba.legitimate_ledger_amounts())
+    assert report.transactions == ba.LEGITIMATE_LEDGER_SIZE
+    assert report.chi_square < BENFORD_CRITICAL_VALUE_05
+    assert report.conforms is True
+
+
+def test_legitimate_baseline_leading_digits_are_the_fibonacci_digits() -> None:
+    """Bind the baseline to the theorem it rests on, via an independent oracle.
+
+    Benford conformance here is a property of the Fibonacci sequence (log10 of
+    its terms is an irrational rotation, equidistributed mod 1), not of any
+    digit frequency chosen by hand. This recomputes the sequence independently
+    of the module and checks digit-for-digit that the ledger amounts really do
+    carry those leading digits — so the baseline cannot be quietly retuned
+    into conformance without breaking the stated provenance.
+    """
+    previous, current = 1, 1
+    for _ in range(16):  # skip to the first four-significant-digit term
+        previous, current = current, previous + current
+    amounts = ba.legitimate_ledger_amounts()
+    assert len(amounts) == ba.LEGITIMATE_LEDGER_SIZE
+    for amount in amounts:
+        assert first_digit(amount) == int(str(previous)[0]), f"{amount!r} vs F={previous}"
+        previous, current = current, previous + current
+
+
+def test_legitimate_baseline_spans_several_decades() -> None:
+    """A single-decade baseline is a weaker control; assert the spread is real."""
+    amounts = ba.legitimate_ledger_amounts()
+    decades = {math.floor(math.log10(a)) for a in amounts}
+    assert len(decades) >= 3
+    assert min(amounts) < 1_000.0 < max(amounts)
+
+
+# ------------------------------------------------- positive case + discrimination
+
+
+def test_laundered_deposits_alone_are_anomalous() -> None:
+    """The positive case: round-figure structuring collapses onto 1, 2 and 5."""
+    report = benford_report(ba.laundered_deposit_amounts())
+    assert report.chi_square > BENFORD_CRITICAL_VALUE_05
+    assert report.conforms is False
+    assert {d for d, n in report.distribution.items() if n} == {"1", "2", "5"}
+
+
+def test_audit_discriminates_the_two_halves() -> None:
+    """The verdict must flip when — and only when — the laundered cash is added.
+
+    Conforming baseline, anomalous full ledger, from the same code path: the
+    audit separates the halves rather than rejecting everything put to it.
+    """
+    clean = benford_report(ba.legitimate_ledger_amounts())
+    dirty = benford_report(ba.canonical_ledger_amounts())
+    assert clean.conforms is True
+    assert dirty.conforms is False
+    assert dirty.chi_square > BENFORD_CRITICAL_VALUE_05 > clean.chi_square
+
+
+# --------------------------------------------------------- digit contributions
+
+
+def test_digit_contributions_sum_to_the_chi_square() -> None:
+    counts = {1: 46, 2: 34, 3: 9, 4: 9, 5: 26, 6: 5, 7: 5, 8: 4, 9: 3}
+    contributions = ba.digit_contributions(counts)
+    assert set(contributions) == set(range(1, 10))
+    assert sum(contributions.values()) == pytest.approx(benford_chi_square(counts))
+
+
+def test_digit_contributions_empty_is_all_zero() -> None:
+    assert ba.digit_contributions({}) == dict.fromkeys(range(1, 10), 0.0)
+
+
+def test_digit_contributions_rejects_non_mapping() -> None:
+    with pytest.raises(TypeError):
+        ba.digit_contributions([1, 2, 3])  # type: ignore[arg-type]
+
+
+def test_claim_ledger_benford_entries_match_live_computation() -> None:
+    """The registered benford.* claims must equal what the core actually returns.
+
+    ``data/claim_ledger.yaml`` says every headline number traces to a live
+    computation. That is only true if something checks it, so this recomputes
+    each benford claim from the core and compares.
+    """
+    ledger_path = Path(__file__).resolve().parents[1] / "data" / "claim_ledger.yaml"
+    claims = {
+        claim["id"]: claim["value"]
+        for claim in yaml.safe_load(ledger_path.read_text(encoding="utf-8"))["claims"]
+    }
+    full = benford_report(ba.canonical_ledger_amounts())
+    legitimate = benford_report(ba.legitimate_ledger_amounts())
+    assert claims["benford.transactions"] == full.transactions
+    assert claims["benford.chi_square"] == pytest.approx(full.chi_square)
+    assert claims["benford.verdict"] == ("conforms" if full.conforms else "anomalous")
+    assert claims["benford.legitimate_transactions"] == legitimate.transactions
+    assert claims["benford.legitimate_chi_square"] == pytest.approx(legitimate.chi_square)
+    assert claims["benford.legitimate_verdict"] == (
+        "conforms" if legitimate.conforms else "anomalous"
+    )
+
+
+def test_round_figure_deposits_dominate_the_canonical_statistic() -> None:
+    """The digit the manuscript names as the carrier is derived, not asserted."""
+    counts = {
+        int(d): n for d, n in benford_report(ba.canonical_ledger_amounts()).distribution.items()
+    }
+    contributions = ba.digit_contributions(counts)
+    carrier = max(contributions, key=lambda digit: contributions[digit])
+    assert carrier == 5  # 5 x 10^n structuring
+    assert contributions[carrier] > 0.5 * sum(contributions.values())
+    # The manuscript states the ledger runs above Benford on exactly 1, 2 and 5
+    # — the digits the round-figure deposits sit on — and below it elsewhere.
+    total = sum(counts.values())
+    excess = {
+        digit
+        for digit in range(1, 10)
+        if counts[digit] > total * ba.expected_benford_frequency(digit)
+    }
+    assert excess == {1, 2, 5}

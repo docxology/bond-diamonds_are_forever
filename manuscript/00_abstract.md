@@ -14,7 +14,7 @@ coverage of {{PROVENANCE_COVERAGE_PCT}}, the forensic signature of conflict
 goods.
 
 **Smuggling.** Across a {{SMUGGLE_CORRIDORS}}-corridor network, the expected-cost
-optimum ({{SMUGGLE_ROUTE}}) cuts seizure exposure by
+optimum ({{SMUGGLE_ROUTE}}) cuts expected cost by
 {{SMUGGLE_REDUCTION_PCT}} versus the fewest-hops baseline, at a survival
 probability of {{SMUGGLE_SURVIVAL_PCT}}.
 
@@ -27,7 +27,11 @@ final theft.
 closure reaches {{CASINO_LAUNDERING_CLOSURE_PCT}}, and a
 {{BENFORD_TRANSACTIONS}}-transaction ledger whose chi-square statistic (
 {{BENFORD_CHI_SQUARE}}) exceeds the {{BENFORD_CRITICAL_VALUE}} critical value
-and so marks it **{{BENFORD_VERDICT}}** under Benford's law.
+and so marks it **{{BENFORD_VERDICT}}** under Benford's law — while its
+{{BENFORD_LEGIT_TRANSACTIONS}}-transaction legitimate baseline, audited alone,
+scores {{BENFORD_LEGIT_CHI_SQUARE}} and **{{BENFORD_LEGIT_VERDICT}}**, the
+negative control that makes the anomalous verdict attributable to the
+round-figure deposits.
 
 **Orbital.** Of {{ORBITAL_TARGETS}} threatened cities, only
 {{ORBITAL_VISIBLE_TARGETS}} fall on the mirror's visible face; and honest beam

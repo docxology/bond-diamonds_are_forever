@@ -23,11 +23,17 @@ conditions:
     primary_metric: "laundering closure (share of flow on money cycles)"
     expected: 0.7742
   - id: benford_ledger
-    description: "101-transaction casino ledger with round laundered deposits"
+    # The baseline/ablation rows below previously described a conforming
+    # legitimate half that did not exist: the old 40 "natural" amounts were
+    # near-uniform across leading digits and scored 19.38 on their own, i.e.
+    # anomalous. The baseline is now Fibonacci-derived, so its conformance is
+    # a theorem rather than an assertion, and both rows are enforced by
+    # tests/test_benford_audit.py.
+    description: "141-transaction casino ledger: 80 legitimate + 61 round laundered deposits"
     primary_metric: "chi-square statistic vs critical value 15.507"
-    expected: "44.06 (anomalous)"
-    baseline: "Benford-conforming natural ledger (conforms)"
-    ablation: "drop round deposits -> conforms"
+    expected: "35.805 (anomalous)"
+    baseline: "legitimate half alone (Fibonacci leading digits): 0.5258, conforms"
+    ablation: "drop the round deposits -> 0.5258, conforms"
   - id: orbital_mirror
     description: "geostationary mirror over Las Vegas at 36,000 km, 3 targets"
     primary_metric: "visible-face count (2 of 3) + slant range per target"

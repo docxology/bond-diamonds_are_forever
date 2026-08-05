@@ -25,7 +25,11 @@ allowance and a {{LOT_DENSITY_MIN}}-{{LOT_DENSITY_MAX}} g/cm3 density window
 **Casino dataset.** {{CASINO_CASINOS}} casinos with {{CASINO_TRANSFERS}}
 transfers totalling {{CASINO_TOTAL_FLOW_M}} million US dollars, and a
 {{BENFORD_TRANSACTIONS}}-transaction ledger tested at df={{BENFORD_DF}},
-alpha={{BENFORD_ALPHA}} (critical value {{BENFORD_CRITICAL_VALUE}}).
+alpha={{BENFORD_ALPHA}} (critical value {{BENFORD_CRITICAL_VALUE}}). The
+ledger is a matched pair: a {{BENFORD_LEGIT_TRANSACTIONS}}-transaction
+legitimate baseline drawn from Fibonacci leading digits (Benford-conforming by
+theorem — the negative control) plus {{BENFORD_LAUNDERED_TRANSACTIONS}}
+round-figure deposits. Each half is audited on its own as well as together.
 
 **Orbital dataset.** {{ORBITAL_TARGETS}} ground targets surveyed from a
 geostationary post at {{ORBITAL_ALTITUDE_KM}} km.

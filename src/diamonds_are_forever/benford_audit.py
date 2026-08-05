@@ -1,16 +1,33 @@
 """Benford's-law laundering detection over the casino ledger (CONFLICT STONE).
 
-Benford's law states that the leading digits of natural transaction amounts
-follow ``p(d) = log10(1 + 1/d)``: a ``1`` appears ~30% of the time, a ``9``
-~4.6%. Money-laundering operations break the pattern twice over — the
-laundered deposits cluster at round figures, and the (fabricated) "legitimate"
-amounts rarely span a natural magnitude range.
+Benford's law states that the leading digits of naturally scaled transaction
+amounts follow ``p(d) = log10(1 + 1/d)``: a ``1`` appears ~30% of the time, a
+``9`` ~4.6%. A laundering operation breaks that pattern by clustering deposits
+on round figures.
 
 This module compares a ledger's observed leading-digit distribution against
 the Benford expectation with a Pearson chi-square statistic against the
 df=8, alpha=0.05 critical value (15.507). A ledger above the critical value is
 flagged as anomalous — the laundering signal. Deterministic: pure arithmetic,
 no RNG.
+
+**The canonical ledger is a matched control pair.** A detector that fires on
+everything detects nothing, so the ledger is built from two separately
+inspectable halves:
+
+* :func:`legitimate_ledger_amounts` — the **negative control**. Its leading
+  digits are the leading digits of the Fibonacci sequence, which are
+  Benford-distributed as a *theorem* (Binet's formula makes ``log10 F_n``
+  an irrational rotation, equidistributed mod 1 by Weyl's criterion). The
+  baseline therefore conforms because of a property of the sequence, not
+  because digit frequencies were hand-picked to pass.
+* :func:`laundered_deposit_amounts` — the **positive case**: round-figure cash
+  deposits on 1/2/5 x 10^n.
+
+:func:`canonical_ledger_amounts` is their concatenation. Both halves are
+constructed fixtures, not empirical records; the pair establishes that this
+implementation discriminates between them, not that the screen would separate
+real books.
 """
 
 from __future__ import annotations
@@ -24,12 +41,16 @@ __all__ = [
     "BENFORD_ALPHA",
     "BENFORD_CRITICAL_VALUE_05",
     "BENFORD_DEGREES_OF_FREEDOM",
+    "LEGITIMATE_LEDGER_SIZE",
     "BenfordReport",
     "benford_chi_square",
     "benford_report",
     "canonical_ledger_amounts",
+    "digit_contributions",
     "expected_benford_frequency",
     "first_digit",
+    "laundered_deposit_amounts",
+    "legitimate_ledger_amounts",
 ]
 
 #: chi-square critical value, df=8, alpha=0.05.
@@ -110,6 +131,26 @@ def benford_chi_square(counts: Mapping[int, int]) -> float:
     return statistic
 
 
+def digit_contributions(counts: Mapping[int, int]) -> dict[int, float]:
+    """Per-digit contribution to the chi-square statistic (empty ledger -> all zero).
+
+    The values sum to :func:`benford_chi_square` of the same counts, so a claim
+    like "digit 5 carries most of the statistic" can be derived rather than
+    asserted in prose.
+    """
+    if not isinstance(counts, Mapping):
+        raise TypeError("counts must be a mapping of digit -> frequency")
+    sample_size = sum(counts.values())
+    if sample_size <= 0:
+        return {digit: 0.0 for digit in range(1, 10)}
+    contributions: dict[int, float] = {}
+    for digit in range(1, 10):
+        observed = float(counts.get(digit, 0))
+        expected = sample_size * expected_benford_frequency(digit)
+        contributions[digit] = (observed - expected) * (observed - expected) / expected
+    return contributions
+
+
 def benford_report(amounts: Sequence[float]) -> BenfordReport:
     """Audit a ledger against Benford's law.
 
@@ -134,57 +175,65 @@ def benford_report(amounts: Sequence[float]) -> BenfordReport:
     )
 
 
-def canonical_ledger_amounts() -> tuple[float, ...]:
-    """The canonical CONFLICT STONE casino ledger (101 transactions).
+#: Number of legitimate (negative-control) transactions in the canonical ledger.
+LEGITIMATE_LEDGER_SIZE = 80
 
-    Forty varied "natural" amounts sit beside sixty-one suspiciously round
-    deposits (laundered cash) clustered on 10^4/2x10^4/5x10^4-style figures,
-    so the leading digits skew toward 1, 2, and 5 and the chi-square statistic
-    exceeds the critical value — the laundering signal the audit must catch.
+#: Fibonacci terms skipped before sampling, so every mantissa has four
+#: significant digits (F_17 = 1597 is the first four-digit term).
+_FIBONACCI_SKIP = 16
+
+#: Decade each successive legitimate amount is placed in, so the baseline spans
+#: 10^2..10^4 instead of sitting inside one decade. Scaling by a power of ten
+#: leaves the leading digit — and therefore the Benford statistic — untouched.
+_DECADE_CYCLE = (2, 3, 4, 3)
+
+
+def _fibonacci_mantissas(count: int, skip: int) -> tuple[int, ...]:
+    """First four significant digits of ``count`` Fibonacci terms after ``skip``.
+
+    Exact integer arithmetic on the Fibonacci recurrence: no floats, so no
+    rounding can move a leading digit.
     """
-    natural = (
-        4123.0,
-        7610.5,
-        2890.0,
-        9301.0,
-        1542.75,
-        6734.0,
-        5820.0,
-        3187.5,
-        8290.0,
-        2460.0,
-        1975.0,
-        7340.0,
-        5105.0,
-        9990.0,
-        8630.0,
-        3205.0,
-        4480.0,
-        6710.0,
-        2530.0,
-        7805.0,
-        6100.0,
-        5390.0,
-        4240.0,
-        8990.0,
-        9760.0,
-        3520.0,
-        4680.0,
-        7150.0,
-        8330.0,
-        2940.0,
-        1250.0,
-        6840.0,
-        7315.0,
-        5520.0,
-        9180.0,
-        4040.0,
-        3750.0,
-        6290.0,
-        8960.0,
-        1450.0,
-    )
-    round_deposits = (
+    previous, current = 1, 1
+    for _ in range(skip):
+        previous, current = current, previous + current
+    mantissas: list[int] = []
+    for _ in range(count):
+        mantissas.append(int(str(previous)[:4]))
+        previous, current = current, previous + current
+    return tuple(mantissas)
+
+
+def legitimate_ledger_amounts() -> tuple[float, ...]:
+    """The legitimate half of the ledger — the audit's negative control.
+
+    Amounts are Fibonacci mantissas placed across the 10^2..10^4 decades. The
+    leading digits of the Fibonacci sequence are Benford-distributed by
+    theorem, so this baseline conforms for a reason external to the audit:
+    nothing here was tuned against the chi-square statistic, and decade
+    placement cannot change a leading digit.
+
+    Without this half the package would only ever have shown the test firing,
+    which is compatible with a test that fires on everything.
+    """
+    amounts: list[float] = []
+    for index, mantissa in enumerate(_fibonacci_mantissas(LEGITIMATE_LEDGER_SIZE, _FIBONACCI_SKIP)):
+        exponent = _DECADE_CYCLE[index % len(_DECADE_CYCLE)] - 3
+        if exponent >= 0:
+            amounts.append(float(mantissa * 10**exponent))
+        else:
+            amounts.append(mantissa / float(10**-exponent))
+    return tuple(amounts)
+
+
+def laundered_deposit_amounts() -> tuple[float, ...]:
+    """The laundered half — 61 round-figure cash deposits on 1/2/5 x 10^n.
+
+    Structuring cash into round figures is exactly what forensic digit
+    analysis is built to surface: the leading digits collapse onto 1, 2, and 5
+    and no other digit appears at all.
+    """
+    return (
         *(10000.0,) * 10,
         *(20000.0,) * 10,
         *(50000.0,) * 10,
@@ -196,4 +245,14 @@ def canonical_ledger_amounts() -> tuple[float, ...]:
         *(5_000_000.0,) * 4,
         10_000_000.0,
     )
-    return natural + round_deposits
+
+
+def canonical_ledger_amounts() -> tuple[float, ...]:
+    """The canonical CONFLICT STONE casino ledger: baseline plus laundered cash.
+
+    The concatenation of :func:`legitimate_ledger_amounts` (which conforms on
+    its own) and :func:`laundered_deposit_amounts` (which does not). The
+    combined statistic exceeds the critical value, and because the baseline
+    passes alone, the flag is attributable to the deposits.
+    """
+    return legitimate_ledger_amounts() + laundered_deposit_amounts()

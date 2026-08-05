@@ -141,19 +141,40 @@ def generate_casino_figure(output_path: str | Path) -> Path:
 
 
 def generate_benford_figure(output_path: str | Path) -> Path:
-    """Observed vs. Benford-expected leading-digit frequencies for the ledger."""
-    report = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
+    """The matched control pair against the Benford expectation.
+
+    Three bars per digit: the legitimate baseline (negative control), the full
+    ledger, and the Benford expectation. Plotting the control alongside the
+    flagged ledger is what makes the flag readable — the baseline tracks the
+    expectation, the full ledger does not.
+    """
+    full = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
+    control = benford_audit.benford_report(benford_audit.legitimate_ledger_amounts())
     digits = list(range(1, 10))
-    observed = [float(report.distribution[str(d)]) / report.transactions for d in digits]
+    control_freq = [float(control.distribution[str(d)]) / control.transactions for d in digits]
+    observed = [float(full.distribution[str(d)]) / full.transactions for d in digits]
     expected = [benford_audit.expected_benford_frequency(d) for d in digits]
     figure, axis = plt.subplots(figsize=(8, 4))
-    axis.bar([d - 0.2 for d in digits], observed, width=0.4, color="#0f766e", label="observed")
-    axis.bar([d + 0.2 for d in digits], expected, width=0.4, color="#b91c1c", label="Benford")
+    axis.bar(
+        [d - 0.27 for d in digits],
+        control_freq,
+        width=0.27,
+        color="#0369a1",
+        label=f"legitimate baseline (chi2={control.chi_square:.2f}, conforms)",
+    )
+    axis.bar(
+        digits,
+        observed,
+        width=0.27,
+        color="#0f766e",
+        label=f"full ledger (chi2={full.chi_square:.2f}, anomalous)",
+    )
+    axis.bar([d + 0.27 for d in digits], expected, width=0.27, color="#b91c1c", label="Benford")
     axis.set_xticks(digits)
     axis.set_xlabel("leading digit")
     axis.set_ylabel("frequency")
     axis.set_title("CONFLICT STONE — casino ledger vs. Benford's law")
-    axis.legend(loc="best")
+    axis.legend(loc="best", fontsize=8)
     figure.tight_layout()
     return _save(figure, Path(output_path))
 

@@ -41,14 +41,26 @@ claims:
     value: 0.7742
     source: "casino_network.canonical_network().laundering_closure()"
   - id: benford.transactions
-    value: 101
+    value: 141
     source: "benford_audit.benford_report(canonical_ledger_amounts()).transactions"
   - id: benford.chi_square
-    value: 44.0559
+    value: 35.805
     source: "benford_audit.benford_report(canonical_ledger_amounts()).chi_square"
   - id: benford.verdict
     value: "anomalous"
     source: "benford_audit.benford_report(canonical_ledger_amounts()).conforms == False"
+  # Negative control: the legitimate half of the same ledger, audited alone.
+  # Without a conforming baseline the anomalous verdict above would be
+  # consistent with a test that flags every ledger put to it.
+  - id: benford.legitimate_transactions
+    value: 80
+    source: "benford_audit.benford_report(legitimate_ledger_amounts()).transactions"
+  - id: benford.legitimate_chi_square
+    value: 0.5258
+    source: "benford_audit.benford_report(legitimate_ledger_amounts()).chi_square"
+  - id: benford.legitimate_verdict
+    value: "conforms"
+    source: "benford_audit.benford_report(legitimate_ledger_amounts()).conforms == True"
   - id: beam.spot_radius_m
     value: 0.564
     source: "beam_physics.beam_metrics()['spot_radius_m']"

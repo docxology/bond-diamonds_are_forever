@@ -78,6 +78,18 @@ Pearson chi-square against the df=8, alpha=0.05 critical value. `first_digit`
 reads the digit by exact integer arithmetic — see *Numerical cautions* below
 for why the obvious implementations are wrong.
 
+The canonical ledger is a **matched control pair**, because a screen that
+fires on every ledger demonstrates nothing:
+`legitimate_ledger_amounts()` (80 amounts whose leading digits are the
+Fibonacci leading digits, Benford-distributed by theorem — the negative
+control, chi-square 0.5258, conforms) plus `laundered_deposit_amounts()`
+(61 round-figure deposits, chi-square 83.07, anomalous).
+`canonical_ledger_amounts()` concatenates them and scores 35.805, anomalous.
+`tests/test_benford_audit.py` asserts all three verdicts, so the baseline
+cannot silently stop conforming. Both halves are constructed fixtures: the
+pair shows this implementation separates them, not that the screen would
+separate real books.
+
 ### `orbital_mirror.py`
 
 Geocentric vector geometry for the space mirror. `is_visible` tests whether the

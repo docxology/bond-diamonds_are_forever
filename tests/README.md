@@ -8,7 +8,7 @@ Deterministic, coverage-gated, mock-free test suite.
 | `test_smuggling_routes.py` | expected-cost routing (Dijkstra + BFS), survival, reduction, validation |
 | `test_lot_forensics.py` | weight/density audit rules, verdicts, validation |
 | `test_casino_network.py` | transfers, hub, cycles, laundering closure, validation |
-| `test_benford_audit.py` | leading-digit law, chi-square, report verdict, validation |
+| `test_benford_audit.py` | leading-digit law, chi-square, report verdict, negative control, validation |
 | `test_orbital_mirror.py` | occultation, slant range, elevation, beam power, validation |
 | `test_beam_physics.py` | diffraction, attenuation, vaporization, min-mirror, validation |
 | `test_mission.py` | MissionProvider lifecycle, protocol, discovery, gadgets, serialization |

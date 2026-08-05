@@ -75,6 +75,12 @@ def test_generate_variables_all_expected_keys() -> None:
         "BENFORD_ALPHA",
         "BENFORD_DF",
         "BENFORD_VERDICT",
+        "BENFORD_LEGIT_TRANSACTIONS",
+        "BENFORD_LEGIT_CHI_SQUARE",
+        "BENFORD_LEGIT_VERDICT",
+        "BENFORD_LAUNDERED_TRANSACTIONS",
+        "BENFORD_CARRIER_DIGIT",
+        "BENFORD_CARRIER_SHARE_PCT",
         "ORBITAL_ALTITUDE_KM",
         "ORBITAL_TARGETS",
         "ORBITAL_VISIBLE_TARGETS",
@@ -116,6 +122,14 @@ def test_generate_variables_values_track_canonical_core() -> None:
     assert variables["LOT_VERDICT"] == "flagrant"
     assert variables["LOT_ANOMALIES"] == "2"
     assert variables["BENFORD_VERDICT"] == "anomalous"
+    # The negative control must be reported as conforming, or the anomalous
+    # verdict above is not attributable to the laundered deposits.
+    assert variables["BENFORD_LEGIT_VERDICT"] == "conforms"
+    assert float(variables["BENFORD_LEGIT_CHI_SQUARE"]) < benford_audit.BENFORD_CRITICAL_VALUE_05
+    assert float(variables["BENFORD_CHI_SQUARE"]) > benford_audit.BENFORD_CRITICAL_VALUE_05
+    assert int(variables["BENFORD_TRANSACTIONS"]) == int(
+        variables["BENFORD_LEGIT_TRANSACTIONS"]
+    ) + int(variables["BENFORD_LAUNDERED_TRANSACTIONS"])
     assert variables["BEAM_MIN_MIRROR_DIAMETER_M"] != ""
     assert "T" in variables["GENERATION_TIMESTAMP"]  # ISO-8601 date-time separator
 

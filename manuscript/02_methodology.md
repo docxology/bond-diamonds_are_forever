@@ -49,15 +49,33 @@ flow that sits on a cycle.
 
 ## Benford's-law ledger audit
 
-A laundering operation breaks the natural leading-digit distribution of its
-ledger (deposits cluster on round figures; the "legitimate" amounts rarely span
-a natural magnitude). This module compares the ledger's observed leading
-digits against Benford's law, `p(d) = log10(1 + 1/d)` [@benford1938;
-@newcomb1881], with a Pearson chi-square statistic [@pearson1900] against the
-df={{BENFORD_DF}}, alpha={{BENFORD_ALPHA}} critical value of
-{{BENFORD_CRITICAL_VALUE}}. Above the critical value the ledger is flagged
-**anomalous** — the laundering signal that forensic digit analysis is built to
-surface [@nigrini2012].
+A laundering operation breaks the leading-digit distribution of its ledger by
+clustering deposits on round figures. This module compares the ledger's
+observed leading digits against Benford's law, `p(d) = log10(1 + 1/d)`
+[@benford1938; @newcomb1881], with a Pearson chi-square statistic
+[@pearson1900] against the df={{BENFORD_DF}}, alpha={{BENFORD_ALPHA}} critical
+value of {{BENFORD_CRITICAL_VALUE}}. Above the critical value the ledger is
+flagged **anomalous** — the laundering signal that forensic digit analysis is
+built to surface [@nigrini2012].
+
+**The audit is exercised as a matched control pair.** A screen that fires on
+every ledger detects nothing, so the canonical ledger is built from two halves
+that are also audited separately:
+
+- a **legitimate baseline** of {{BENFORD_LEGIT_TRANSACTIONS}} transactions —
+  the *negative control*. Its leading digits are the leading digits of the
+  Fibonacci sequence, which are Benford-distributed as a theorem: Binet's
+  formula makes `log10 F_n` an irrational rotation, equidistributed mod 1 by
+  Weyl's criterion. Conformance is therefore a property of the sequence, not
+  of digit frequencies chosen to pass the test. The amounts are placed across
+  the 10^2-10^4 decades, and scaling by a power of ten cannot change a leading
+  digit;
+- {{BENFORD_LAUNDERED_TRANSACTIONS}} **round-figure deposits** on
+  1/2/5 x 10^n — the laundered cash.
+
+Both halves are constructed fixtures, not empirical records. The pair
+establishes that this implementation separates them; it is not evidence about
+how the screen would behave on real books.
 
 ## Orbital targeting geometry
 

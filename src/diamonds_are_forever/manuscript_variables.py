@@ -84,6 +84,13 @@ def generate_variables(
     closure = network.laundering_closure()
 
     ledger = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
+    legitimate_ledger = benford_audit.benford_report(benford_audit.legitimate_ledger_amounts())
+    laundered_deposits = benford_audit.laundered_deposit_amounts()
+    ledger_contributions = benford_audit.digit_contributions(
+        {int(digit): count for digit, count in ledger.distribution.items()}
+    )
+    carrier_digit = max(ledger_contributions, key=lambda digit: ledger_contributions[digit])
+    carrier_share = ledger_contributions[carrier_digit] / sum(ledger_contributions.values())
 
     satellite = orbital_mirror.canonical_satellite()
     targets = orbital_mirror.canonical_targets()
@@ -141,6 +148,12 @@ def generate_variables(
         "BENFORD_ALPHA": f"{benford_audit.BENFORD_ALPHA:g}",
         "BENFORD_DF": str(benford_audit.BENFORD_DEGREES_OF_FREEDOM),
         "BENFORD_VERDICT": "conforms" if ledger.conforms else "anomalous",
+        "BENFORD_LEGIT_TRANSACTIONS": str(legitimate_ledger.transactions),
+        "BENFORD_LEGIT_CHI_SQUARE": f"{legitimate_ledger.chi_square:.2f}",
+        "BENFORD_LEGIT_VERDICT": "conforms" if legitimate_ledger.conforms else "anomalous",
+        "BENFORD_LAUNDERED_TRANSACTIONS": str(len(laundered_deposits)),
+        "BENFORD_CARRIER_DIGIT": str(carrier_digit),
+        "BENFORD_CARRIER_SHARE_PCT": f"{carrier_share:.0%}",
         "ORBITAL_ALTITUDE_KM": f"{satellite.altitude_km:.0f}",
         "ORBITAL_TARGETS": str(len(targets)),
         "ORBITAL_VISIBLE_TARGETS": str(len(visible)),
