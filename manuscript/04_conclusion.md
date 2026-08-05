@@ -9,7 +9,7 @@ auditable, reproducible special-agent report.
 The provenance analysis shows that even a majority-documented chain of custody
 ({{PROVENANCE_COVERAGE_PCT}} coverage) retains flagrant break points that mark
 the goods as illicit, while risk-weighted routing proves the smuggler can cut
-seizure cost by {{SMUGGLE_REDUCTION_PCT}} over the naïve route. Weight and
+expected route cost by {{SMUGGLE_REDUCTION_PCT}} over the naïve route. Weight and
 density forensics independently convict the lot (verdict
 **{{LOT_VERDICT}}**), the casino wash shows a laundering closure of
 {{CASINO_LAUNDERING_CLOSURE_PCT}}, and the ledger fails Benford's law

@@ -3,10 +3,15 @@ layers:
   - name: "pure_core"
     modules:
       - "src/diamonds_are_forever/provenance_chain.py"
+      - "src/diamonds_are_forever/smuggling_routes.py"
+      - "src/diamonds_are_forever/lot_forensics.py"
       - "src/diamonds_are_forever/casino_network.py"
+      - "src/diamonds_are_forever/benford_audit.py"
       - "src/diamonds_are_forever/orbital_mirror.py"
+      - "src/diamonds_are_forever/beam_physics.py"
     imports_allowed:
       - "stdlib"
+      - "orbital_mirror.SOLAR_CONSTANT_W_M2 (from beam_physics only)"
     imports_forbidden:
       - "bond_api"
       - "infrastructure"
