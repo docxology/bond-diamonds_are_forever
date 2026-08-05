@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
+import math
 import re
+import subprocess
+import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -97,7 +103,7 @@ def test_generate_variables_all_expected_keys() -> None:
         "BEAM_REQUIRED_IRRADIANCE_MW",
         "BEAM_MIN_MIRROR_DIAMETER_M",
         "PYTHON_VERSION",
-        "GENERATION_TIMESTAMP",
+        "MANUSCRIPT_DATE",
     }
     assert set(variables) == expected
 
@@ -131,7 +137,9 @@ def test_generate_variables_values_track_canonical_core() -> None:
         variables["BENFORD_LEGIT_TRANSACTIONS"]
     ) + int(variables["BENFORD_LAUNDERED_TRANSACTIONS"])
     assert variables["BEAM_MIN_MIRROR_DIAMETER_M"] != ""
-    assert "T" in variables["GENERATION_TIMESTAMP"]  # ISO-8601 date-time separator
+    # The manuscript stamp is the committed config value, not a clock reading.
+    config = mv.load_manuscript_config()
+    assert variables["MANUSCRIPT_DATE"] == str(config["paper"]["date"])
 
 
 def test_model_constant_tokens_track_the_core_constants() -> None:
@@ -267,3 +275,86 @@ def test_resolve_tree_empty_dir_raises(tmp_path: Path) -> None:
     empty.mkdir(parents=True, exist_ok=True)
     with pytest.raises(FileNotFoundError):
         mv.resolve_manuscript_tree({}, manuscript_dir=empty, output_dir=tmp_path / "out")
+
+
+# ------------------------------------------------------------- pinned date stamp
+
+
+def test_pinned_manuscript_date_accepts_a_quoted_string() -> None:
+    assert mv.pinned_manuscript_date({"date": "2026-08-04"}) == "2026-08-04"
+
+
+def test_pinned_manuscript_date_normalises_a_yaml_date_object() -> None:
+    """Unquoted YAML ``date:`` parses to ``datetime.date`` — still ISO, still pinned."""
+    assert mv.pinned_manuscript_date({"date": dt.date(2026, 8, 4)}) == "2026-08-04"
+    stamped = dt.datetime(2026, 8, 4, 12, 30, tzinfo=dt.timezone.utc)
+    assert mv.pinned_manuscript_date({"date": stamped}) == "2026-08-04T12:30:00+00:00"
+
+
+def test_pinned_manuscript_date_missing_fails_loudly() -> None:
+    """A missing stamp must raise, never silently fall back to the clock."""
+    with pytest.raises(ValueError):
+        mv.pinned_manuscript_date({"title": "no date here"})
+
+
+# ------------------------------------------------------- regeneration determinism
+
+SCRIPT = ROOT / "scripts" / "z_generate_manuscript_variables.py"
+
+
+def _run_generator(output_dir: Path) -> None:
+    """Run the real orchestrator — the production entry point, not a re-implementation."""
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--output-dir", str(output_dir)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def _digest_tree(root: Path) -> dict[str, str]:
+    return {
+        str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def _sleep_past_the_next_whole_second() -> None:
+    """Straddle a second boundary so a seconds-resolution clock would differ.
+
+    Without this the two runs can land inside the same second and a wall-clock
+    stamp would compare equal by luck — the determinism assertion would pass
+    while proving nothing.
+    """
+    now = time.time()
+    time.sleep(math.floor(now) + 1.05 - now)
+
+
+def test_regeneration_is_byte_identical_across_a_second_boundary(tmp_path: Path) -> None:
+    """Two full regenerations must write identical bytes.
+
+    This is the claim made in ``manuscript/06_reproducibility.md``, ``AGENTS.md``,
+    ``STANDALONE.md`` and ``docs/agent_instructions.md``. It runs the generator
+    twice for real, separated by a whole-second boundary, so reintroducing any
+    wall-clock value into a persisted artifact turns this test red.
+    """
+    first, second = tmp_path / "run1", tmp_path / "run2"
+
+    _run_generator(first)
+    _sleep_past_the_next_whole_second()
+    _run_generator(second)
+
+    before, after = _digest_tree(first), _digest_tree(second)
+
+    # Non-vacuity: the comparison is meaningless unless real artifacts landed.
+    assert "data/manuscript_variables.json" in before
+    assert "manuscript/05_experimental_setup.md" in before
+    assert len(before) >= 10
+    assert set(before) == set(after)
+
+    differing = sorted(name for name in before if before[name] != after[name])
+    assert not differing, f"regeneration is not byte-identical: {differing}"

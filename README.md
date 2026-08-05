@@ -113,7 +113,11 @@ than any figure quoted in prose. Zero mocks, zero skips.
 
 Deterministic by construction: fixed canonical datasets, no RNG, and every
 mission outcome carries a SHA-256 fingerprint of its inputs, so two runs
-produce byte-identical debriefs.
+produce byte-identical debriefs. Manuscript hydration is deterministic on the
+same footing — the edition stamp is `paper.date` from `manuscript/config.yaml`
+rather than a clock reading, so regenerating `output/` rewrites the same bytes
+(`PYTHON_VERSION` is the only token read from the machine, so byte-identity is
+claimed for reruns on the same interpreter).
 
 ## Project layout
 

@@ -7,8 +7,8 @@ physics) behind a frozen `bond-api` `MissionProvider` adapter. For what it *is*,
 read `README.md`; for how it works, `docs/architecture.md`. This file tracks only
 what is left.
 
-**Verified state, measured 2026-08-05 in this tree at `da4b7ac`:**
-`uv run pytest tests/ --cov=src --cov-fail-under=90` → **230 passed**,
+**Verified state, re-measured 2026-08-05 in this tree after the C1 fix:**
+`uv run pytest tests/ --cov=src --cov-fail-under=90` → **234 passed**,
 **100.00%** line+branch coverage on `src/` (all ten measured modules at 100%;
 `*/__init__.py` is omitted by `pyproject.toml:47-51`). `ruff check`,
 `ruff format --check`, and `mypy src/ scripts/` are clean, the
@@ -26,7 +26,30 @@ looks like, and the command that closes it. Nothing here has been started.
 
 ### Correctness
 
-#### C1 — Manuscript hydration is not byte-deterministic, and four documents claim it is
+#### ~~C1 — Manuscript hydration is not byte-deterministic, and four documents claim it is~~ — CLOSED 2026-08-05
+
+**Resolution: the claim was made true.** `GENERATION_TIMESTAMP` is gone. The
+manuscript is now stamped `MANUSCRIPT_DATE`, read from `paper.date` in
+`manuscript/config.yaml` by `manuscript_variables.pinned_manuscript_date()` — a
+committed input, not a clock; a config with no `date` raises rather than falling
+back to `datetime.now`. `manuscript/05_experimental_setup.md`,
+`manuscript/SYNTAX.md`, `manuscript/06_reproducibility.md`, `AGENTS.md`,
+`STANDALONE.md`, `README.md` and `docs/agent_instructions.md` were updated to
+state the property precisely, naming `PYTHON_VERSION` as the one token still
+read from the machine (so byte-identity is claimed for reruns on the same
+interpreter).
+
+Bound by `tests/test_manuscript_variables.py::test_regeneration_is_byte_identical_across_a_second_boundary`,
+which runs the real orchestrator twice into two temp trees — separated by a
+sleep past the next whole second, so a seconds-resolution clock cannot match by
+luck — and diffs the SHA-256 of every written file, after asserting the trees
+are non-empty. Proven failable: temporarily restoring
+`datetime.now(timezone.utc)` turned it red on
+`['data/manuscript_variables.json', 'manuscript/05_experimental_setup.md']`, and
+green again on restore. The two-run `md5` of `output/**/*.{json,md}` now matches
+(`1675efd56a35143f4991a10e27d4ed00` twice, 2 s apart).
+
+<details><summary>Original finding</summary>
 
 `manuscript_variables.py:175` sets
 `"GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(...)`. That value
@@ -57,6 +80,8 @@ uv run python scripts/z_generate_manuscript_variables.py && cp output/data/manus
   && uv run python scripts/z_generate_manuscript_variables.py && diff /tmp/mv1.json output/data/manuscript_variables.json
 ```
 (exit 0 = closed, if the byte-identity route is taken.)
+
+</details>
 
 #### C2 — The `bond-api` dependency is an absolute machine path
 
@@ -375,13 +400,13 @@ Accepted and deliberate. Recorded here so they are not re-litigated as defects.
 ## Verification
 
 The gates for this package, in the order to run them. All four were green in this
-tree at `da4b7ac` on 2026-08-05.
+tree on 2026-08-05, after the C1 fix.
 
 ```bash
 cd projects/working/bond/diamonds_are_forever
 uv sync --extra dev                                    # wires the bond-api path dependency; required before pytest
 
-uv run pytest tests/ --cov=src --cov-fail-under=90     # expect: 230 passed, 100.00% coverage, 0 skips
+uv run pytest tests/ --cov=src --cov-fail-under=90     # expect: 234 passed, 100.00% coverage, 0 skips
 uv run ruff check src/ scripts/                        # expect: All checks passed!
 uv run ruff format --check src/ scripts/               # expect: 26 files already formatted
 uv run mypy src/ scripts/                              # expect: Success: no issues found in 20 source files
@@ -394,6 +419,16 @@ uv run python scripts/generate_figures.py                   # 7 PNGs under outpu
 uv run python scripts/z_generate_manuscript_variables.py    # strict: an unresolved {{TOKEN}} fails the run
 rg -n "template[_]code_project" .                           # expect: zero hits
 git status                                                  # expect: clean after committing (output/ is ignored)
+```
+
+And that hydration is byte-identical — the two hashes must match (C1):
+
+```bash
+uv run python scripts/z_generate_manuscript_variables.py
+find output -type f \( -name '*.json' -o -name '*.md' \) | sort | xargs cat | md5
+sleep 2
+uv run python scripts/z_generate_manuscript_variables.py
+find output -type f \( -name '*.json' -o -name '*.md' \) | sort | xargs cat | md5
 ```
 
 And end to end, twice — the two runs must print the same input hash:

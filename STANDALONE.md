@@ -22,7 +22,9 @@ package may be pushed. Metadata sidecars (`.zenodo.json`, `CITATION.cff`,
 - Pure domain core with **no** `infrastructure.*` or `bond_api` imports —
   importable standalone.
 - Deterministic: frozen canonical datasets, fixed seed, no RNG, no wall-clock
-  in persisted artifacts.
+  in persisted artifacts (the manuscript stamp is `paper.date` from
+  `manuscript/config.yaml`). Two hydration runs write identical bytes on the
+  same interpreter; the suite asserts it.
 - Zero mocks: all tests run real computations over real data.
 - Covered: `uv run pytest tests/ --cov=src --cov-fail-under=90` (≥90% gate).
 - Protocol-frozen: the mission adapter implements the frozen `bond-api`

@@ -13,7 +13,10 @@ suite at `projects/working/bond/` (local-only working tree, no remote).
 - **No mock framework.** Real data + computation only.
 - **≥90% line+branch coverage** on `src/`.
 - **Deterministic**: fixed canonical datasets, fixed seed, no untracked RNG, no
-  wall-clock in persisted artifacts.
+  wall-clock in persisted artifacts. The manuscript edition stamp comes from
+  `paper.date` in `manuscript/config.yaml`, never from `datetime.now`;
+  `tests/test_manuscript_variables.py::test_regeneration_is_byte_identical_across_a_second_boundary`
+  regenerates twice across a second boundary and diffs the bytes.
 - **Thin orchestrators** in `scripts/`; business logic in `src/`.
 - **No number is hand-authored in manuscript prose** — see *Manuscript* below.
 

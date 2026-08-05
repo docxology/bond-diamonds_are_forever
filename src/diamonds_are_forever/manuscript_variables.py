@@ -6,15 +6,21 @@ computed analytic metrics from the pure domain modules. Metrics are never
 hand-authored in prose — they flow through this module so the manuscript cannot
 drift from the code it describes.
 
+No value here is read from the wall clock. The manuscript is stamped with
+``paper.date`` from ``manuscript/config.yaml`` — a committed, reviewable value —
+so re-running hydration on the same interpreter rewrites byte-identical
+artifacts. ``tests/test_manuscript_variables.py`` pins that property by running
+the generator twice across a whole-second boundary and diffing the bytes.
+
 The consuming orchestrator is ``scripts/z_generate_manuscript_variables.py``; the
 live cross-reference gate lives in ``tests/test_manuscript_variables.py``.
 """
 
 from __future__ import annotations
 
+import datetime as _dt
 import platform
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -30,7 +36,12 @@ from diamonds_are_forever import (
     smuggling_routes,
 )
 
-__all__ = ["generate_variables", "load_manuscript_config", "resolve_manuscript_tree"]
+__all__ = [
+    "generate_variables",
+    "load_manuscript_config",
+    "pinned_manuscript_date",
+    "resolve_manuscript_tree",
+]
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = PACKAGE_ROOT / "manuscript" / "config.yaml"
@@ -48,6 +59,27 @@ def load_manuscript_config(config_path: str | Path | None = None) -> dict[str, A
     if not isinstance(data, dict):
         raise TypeError(f"manuscript config must be a top-level mapping, got {type(data).__name__}")
     return data
+
+
+def pinned_manuscript_date(paper: dict[str, Any]) -> str:
+    """Return the committed edition date used to stamp the manuscript.
+
+    The stamp is deliberately *not* a wall clock. It is read from ``paper.date``
+    in ``manuscript/config.yaml``, which is committed and reviewed like any other
+    input, so two hydration runs write identical bytes. YAML parses an unquoted
+    ``date:`` into a ``datetime.date``; both that and the quoted string form
+    normalise to ISO-8601 here.
+
+    Raises:
+        ValueError: if the config omits ``paper.date`` — a missing stamp must
+            fail loudly rather than fall back to the clock.
+    """
+    raw = paper.get("date")
+    if raw is None:
+        raise ValueError("manuscript config 'paper' section must define a 'date'")
+    if isinstance(raw, (_dt.datetime, _dt.date)):
+        return raw.isoformat()
+    return str(raw)
 
 
 def generate_variables(
@@ -172,7 +204,7 @@ def generate_variables(
         ),
         "BEAM_MIN_MIRROR_DIAMETER_M": f"{beam['min_mirror_diameter_m']:.1f}",
         "PYTHON_VERSION": platform.python_version(),
-        "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "MANUSCRIPT_DATE": pinned_manuscript_date(paper),
     }
 
 

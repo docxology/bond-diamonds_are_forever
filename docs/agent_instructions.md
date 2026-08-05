@@ -14,7 +14,11 @@ touch sibling bond packages, the bond root, or the template repo. This is a
 - **No mocks.** No `MagicMock` / `mocker.patch` / `unittest.mock`. Real data +
   computation only.
 - **Determinism.** Fixed canonical datasets, fixed seed, no untracked RNG, no
-  wall-clock in persisted artifacts. Re-running produces byte-identical output.
+  wall-clock in persisted artifacts — the manuscript edition stamp is
+  `paper.date` from `manuscript/config.yaml`. Re-running produces byte-identical
+  output on the same interpreter (`PYTHON_VERSION` is the one token read from
+  the machine rather than a committed input). Pinned by
+  `tests/test_manuscript_variables.py::test_regeneration_is_byte_identical_across_a_second_boundary`.
 - **Coverage.** `uv run pytest tests/ --cov=src --cov-fail-under=90`.
 - **Tooling.** `uv run ruff check src/ scripts/` + `uv run ruff format` +
   `uv run mypy src/ scripts/` all clean.

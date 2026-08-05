@@ -41,4 +41,8 @@ atmospheric attenuation giving a transmittance of
 mirror is solved is {{BEAM_REQUIRED_IRRADIANCE_MW}} MW/m2.
 
 **Software environment.** Python {{PYTHON_VERSION}}, resolved at generation
-time. Variable generation timestamp: {{GENERATION_TIMESTAMP}} (UTC).
+time — the one token whose value is read from the machine rather than from a
+committed input. The manuscript edition is stamped {{MANUSCRIPT_DATE}}, taken
+from `paper.date` in `manuscript/config.yaml`; no value in this manuscript comes
+from the wall clock, so re-running hydration on the same interpreter rewrites
+the same bytes.
