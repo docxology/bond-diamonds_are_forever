@@ -1,4 +1,4 @@
-# Claim ledger for diamonds_are_forever (CONFLICT STONE).
+# Claim ledger for diamonds_are_forever (CONFLICT STONE · DIAMOND NET).
 # Registers the sourced, deterministic numeric claims the manuscript relies on.
 # Each claim traces to a live computation in the pure domain core, never a
 # hand-stated number.
@@ -7,34 +7,54 @@ claims:
   - id: provenance.transfers
     value: 5
     source: "provenance_chain.canonical_transfers()"
-    determinism: "frozen canonical dataset"
   - id: provenance.breakpoints
     value: 2
     source: "provenance_chain.break_points(canonical_transfers())"
   - id: provenance.coverage
     value: 0.6
     source: "provenance_chain.provenance_coverage(canonical_transfers())"
+  - id: smuggling.corridors
+    value: 10
+    source: "smuggling_routes.canonical_corridors().corridors()"
+  - id: smuggling.route
+    value: "sierra_leone -> nairobi -> paris -> amsterdam -> las_vegas"
+    source: "smuggling_routes.least_risk_route(...) with cargo_value 5.0"
+  - id: smuggling.expected_cost_m
+    value: 9.35
+    source: "smuggling_routes.least_risk_route(...)"
+  - id: smuggling.survival
+    value: 0.3444
+    source: "smuggling_routes.least_risk_route(...)"
+  - id: smuggling.reduction
+    value: 0.1614
+    source: "smuggling_routes.route_reduction(naive_cost, route_cost)"
+  - id: forensics.anomalies
+    value: 2
+    source: "lot_forensics.audit_lot(canonical_lot_samples()).anomalies"
+  - id: forensics.verdict
+    value: "flagrant"
+    source: "lot_forensics.audit_lot(canonical_lot_samples()).verdict"
   - id: casino.casinos
     value: 7
     source: "casino_network.canonical_network().casinos()"
-  - id: casino.total_flow_m
-    value: 31.0
-    source: "casino_network.canonical_network().total_flow()"
-  - id: casino.hub
-    value: "whyte_house"
-    source: "casino_network.canonical_network().hub()"
-  - id: casino.money_cycles
-    value: 3
-    source: "casino_network.canonical_network().find_money_cycles()"
   - id: casino.laundering_closure
     value: 0.7742
     source: "casino_network.canonical_network().laundering_closure()"
-  - id: orbital.altitude_km
-    value: 36000
-    source: "orbital_mirror.canonical_satellite().altitude_km"
-  - id: orbital.targets
-    value: 3
-    source: "orbital_mirror.canonical_targets()"
-  - id: orbital.visible
-    value: 2
-    source: "orbital_mirror.is_visible(satellite, target) over canonical_targets()"
+  - id: benford.transactions
+    value: 101
+    source: "benford_audit.benford_report(canonical_ledger_amounts()).transactions"
+  - id: benford.chi_square
+    value: 44.0559
+    source: "benford_audit.benford_report(canonical_ledger_amounts()).chi_square"
+  - id: benford.verdict
+    value: "anomalous"
+    source: "benford_audit.benford_report(canonical_ledger_amounts()).conforms == False"
+  - id: beam.spot_radius_m
+    value: 0.564
+    source: "beam_physics.beam_metrics()['spot_radius_m']"
+  - id: beam.concentration
+    value: 564.6
+    source: "beam_physics.beam_metrics()['concentration']"
+  - id: beam.min_mirror_diameter_m
+    value: 42.7
+    source: "beam_physics.beam_metrics()['min_mirror_diameter_m']"

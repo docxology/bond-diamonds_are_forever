@@ -21,11 +21,15 @@ computations over the frozen canonical datasets and the real BOND-API protocol.
 | Test file | Covers |
 |---|---|
 | `test_provenance_chain.py` | custody graph, break points, coverage, origin, validation errors |
+| `test_smuggling_routes.py` | expected-cost Dijkstra routing, BFS baseline, survival, reduction |
+| `test_lot_forensics.py` | weight-gain / excess-loss / density-mismatch rules, verdicts |
 | `test_casino_network.py` | transfers, hub, cycles, laundering closure, validation errors |
-| `test_orbital_mirror.py` | occultation, slant range, elevation, beam delivery, validation errors |
+| `test_benford_audit.py` | leading-digit law, chi-square, report verdict, validation errors |
+| `test_orbital_mirror.py` | occultation, slant range, elevation, beam power, validation errors |
+| `test_beam_physics.py` | diffraction spot, Beer-Lambert, vaporization, min-mirror inversion |
 | `test_mission.py` | MissionProvider lifecycle, protocol check, discovery, gadgets, serialization |
 | `test_manuscript_variables.py` | token map + live `{{TOKEN}}` cross-reference gate |
-| `test_figures.py` | deterministic PNG output |
+| `test_figures.py` | deterministic PNG output (7 figures) |
 | `test_scripts_smoke.py` | subprocess runs of every phase CLI + generators |
 
 ## Pattern notes

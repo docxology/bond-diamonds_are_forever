@@ -38,16 +38,32 @@ def test_generate_variables_all_expected_keys() -> None:
         "PROVENANCE_BREAKPOINTS",
         "PROVENANCE_COVERAGE_PCT",
         "PROVENANCE_CONFLICT_FREE",
+        "SMUGGLE_CORRIDORS",
+        "SMUGGLE_ROUTE",
+        "SMUGGLE_EXPECTED_COST_M",
+        "SMUGGLE_SURVIVAL_PCT",
+        "SMUGGLE_REDUCTION_PCT",
+        "LOT_SAMPLES",
+        "LOT_ANOMALIES",
+        "LOT_AUDIT_SCORE",
+        "LOT_VERDICT",
         "CASINO_CASINOS",
         "CASINO_TRANSFERS",
         "CASINO_TOTAL_FLOW_M",
         "CASINO_HUB",
         "CASINO_MONEY_CYCLES",
         "CASINO_LAUNDERING_CLOSURE_PCT",
+        "BENFORD_TRANSACTIONS",
+        "BENFORD_CHI_SQUARE",
+        "BENFORD_VERDICT",
         "ORBITAL_ALTITUDE_KM",
         "ORBITAL_TARGETS",
         "ORBITAL_VISIBLE_TARGETS",
         "ORBITAL_VISIBLE_NAMES",
+        "BEAM_SPOT_RADIUS_M",
+        "BEAM_CONCENTRATION_X",
+        "BEAM_VAPORIZE_TIME_S",
+        "BEAM_MIN_MIRROR_DIAMETER_M",
         "PYTHON_VERSION",
         "GENERATION_TIMESTAMP",
     }
@@ -66,6 +82,15 @@ def test_generate_variables_values_track_canonical_core() -> None:
     assert variables["CASINO_MONEY_CYCLES"] == "3"
     assert variables["ORBITAL_TARGETS"] == "3"
     assert variables["ORBITAL_VISIBLE_TARGETS"] == "2"
+    assert variables["SMUGGLE_CORRIDORS"] == "10"
+    assert (
+        variables["SMUGGLE_ROUTE"] == "sierra_leone -> nairobi -> paris -> amsterdam -> las_vegas"
+    )
+    assert variables["SMUGGLE_SURVIVAL_PCT"] == "34%"
+    assert variables["LOT_VERDICT"] == "flagrant"
+    assert variables["LOT_ANOMALIES"] == "2"
+    assert variables["BENFORD_VERDICT"] == "anomalous"
+    assert variables["BEAM_MIN_MIRROR_DIAMETER_M"] != ""
     assert "T" in variables["GENERATION_TIMESTAMP"]  # ISO-8601 date-time separator
 
 

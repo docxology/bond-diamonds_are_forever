@@ -60,7 +60,15 @@ def test_generate_figures_writes_pngs(tmp_path: Path) -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    for name in ("provenance_chain.png", "casino_network.png", "orbital_visibility.png"):
+    for name in (
+        "provenance_chain.png",
+        "smuggling_route.png",
+        "lot_forensics.png",
+        "casino_network.png",
+        "benford_ledger.png",
+        "orbital_visibility.png",
+        "beam_physics.png",
+    ):
         assert (ROOT / "output" / "figures" / name).is_file()
 
 

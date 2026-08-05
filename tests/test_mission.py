@@ -44,16 +44,16 @@ def test_brief_shape() -> None:
     brief = MissionProvider().brief()
     assert isinstance(brief, MissionBrief)
     assert brief.codename == "CONFLICT STONE"
-    assert len(brief.objectives) == 3
-    assert len(brief.assets) == 3
+    assert len(brief.objectives) == 6
+    assert len(brief.assets) == 6
     assert len(brief.constraints) == 2
 
 
-def test_recon_reports_all_three_domains() -> None:
+def test_recon_reports_all_domains() -> None:
     report = MissionProvider().recon(ReconRequest(goal="survey"))
     assert isinstance(report, ReconReport)
     labels = {finding.label for finding in report.findings}
-    assert {"chain", "casinos", "mirror", "goal"} <= labels
+    assert {"chain", "corridors", "lot_forensics", "casinos", "ledger", "mirror", "goal"} <= labels
 
 
 def test_plan_has_one_step_per_concept() -> None:
@@ -62,8 +62,12 @@ def test_plan_has_one_step_per_concept() -> None:
     assert isinstance(plan, MissionPlan)
     assert [step.action for step in plan.steps] == [
         "analyze_custody_chain",
+        "optimize_corridor_route",
+        "audit_lot_df71",
         "analyze_money_movement",
+        "test_ledger_digit_law",
         "solve_targeting_geometry",
+        "solve_beam_delivery",
     ]
 
 
@@ -82,6 +86,16 @@ def test_execute_results_match_canonical_math() -> None:
     assert outcome.results["casino"]["hub"] == "whyte_house"
     assert outcome.results["casino"]["money_cycles"] == 3
     assert outcome.results["orbital"]["visible_targets"] == 2
+    assert outcome.results["smuggling"]["route"] == [
+        "sierra_leone",
+        "nairobi",
+        "paris",
+        "amsterdam",
+        "las_vegas",
+    ]
+    assert outcome.results["lot_forensics"]["verdict"] == "flagrant"
+    assert outcome.results["benford"]["conforms"] is False
+    assert outcome.results["beam"]["min_mirror_diameter_m"] > 0
 
 
 def test_debrief_is_deterministic() -> None:
@@ -98,7 +112,7 @@ def test_full_mission_flow() -> None:
     assert isinstance(debrief, Debrief)
     assert debrief.outcome.success is True
     assert debrief.outcome.provenance.seed == 7
-    assert len(debrief.lessons) == 4
+    assert len(debrief.lessons) == 8
 
 
 def test_input_hash_is_deterministic_and_nonempty() -> None:
@@ -114,9 +128,14 @@ def test_gadget_registration() -> None:
         "provenance.break_points",
         "provenance.coverage",
         "provenance.origin",
+        "smuggling.route",
+        "smuggling.reduction",
+        "forensics.audit",
         "casino.hub",
         "casino.closure",
+        "benford.report",
         "orbital.visible",
+        "beam.metrics",
     )
     # Gadgets are real callables that return real results.
     hub_gadget = registry.lookup("diamonds_are_forever", "casino.hub")

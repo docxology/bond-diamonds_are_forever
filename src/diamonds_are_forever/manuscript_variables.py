@@ -20,7 +20,15 @@ from typing import Any
 
 import yaml
 
-from diamonds_are_forever import casino_network, orbital_mirror, provenance_chain
+from diamonds_are_forever import (
+    beam_physics,
+    benford_audit,
+    casino_network,
+    lot_forensics,
+    orbital_mirror,
+    provenance_chain,
+    smuggling_routes,
+)
 
 __all__ = ["generate_variables", "load_manuscript_config", "resolve_manuscript_tree"]
 
@@ -61,11 +69,27 @@ def generate_variables(
 
     transfers = provenance_chain.canonical_transfers()
     coverage = provenance_chain.provenance_coverage(transfers)
+
+    corridors = smuggling_routes.canonical_corridors()
+    cargo_value = smuggling_routes.canonical_cargo_value_m()
+    route, route_cost, survival = smuggling_routes.least_risk_route(
+        corridors, "sierra_leone", "las_vegas", cargo_value
+    )
+    naive_route = smuggling_routes.naive_hops_route(corridors, "sierra_leone", "las_vegas")
+    naive_cost = smuggling_routes.cost_of_path(corridors, naive_route, cargo_value)
+
+    forensic = lot_forensics.audit_lot(lot_forensics.canonical_lot_samples())
+
     network = casino_network.canonical_network()
     closure = network.laundering_closure()
+
+    ledger = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
+
     satellite = orbital_mirror.canonical_satellite()
     targets = orbital_mirror.canonical_targets()
     visible = [t.name for t in targets if orbital_mirror.is_visible(satellite, t)]
+
+    beam = beam_physics.beam_metrics()
 
     mission = config.get("mission", {})
     if not isinstance(mission, dict):
@@ -82,16 +106,32 @@ def generate_variables(
         "PROVENANCE_BREAKPOINTS": str(len(provenance_chain.break_points(transfers))),
         "PROVENANCE_COVERAGE_PCT": f"{coverage:.0%}",
         "PROVENANCE_CONFLICT_FREE": str(provenance_chain.is_conflict_free(transfers)).lower(),
+        "SMUGGLE_CORRIDORS": str(len(corridors.corridors())),
+        "SMUGGLE_ROUTE": " -> ".join(route),
+        "SMUGGLE_EXPECTED_COST_M": f"{route_cost:.2f}",
+        "SMUGGLE_SURVIVAL_PCT": f"{survival:.0%}",
+        "SMUGGLE_REDUCTION_PCT": f"{smuggling_routes.route_reduction(naive_cost, route_cost):.0%}",
+        "LOT_SAMPLES": str(len(forensic.samples)),
+        "LOT_ANOMALIES": str(len(forensic.anomalies)),
+        "LOT_AUDIT_SCORE": str(forensic.score),
+        "LOT_VERDICT": forensic.verdict,
         "CASINO_CASINOS": str(len(network.casinos())),
         "CASINO_TRANSFERS": str(len(network.transfers())),
         "CASINO_TOTAL_FLOW_M": f"{network.total_flow():.1f}",
         "CASINO_HUB": network.hub(),
         "CASINO_MONEY_CYCLES": str(len(network.find_money_cycles())),
         "CASINO_LAUNDERING_CLOSURE_PCT": f"{closure:.0%}",
+        "BENFORD_TRANSACTIONS": str(ledger.transactions),
+        "BENFORD_CHI_SQUARE": f"{ledger.chi_square:.2f}",
+        "BENFORD_VERDICT": "conforms" if ledger.conforms else "anomalous",
         "ORBITAL_ALTITUDE_KM": f"{satellite.altitude_km:.0f}",
         "ORBITAL_TARGETS": str(len(targets)),
         "ORBITAL_VISIBLE_TARGETS": str(len(visible)),
         "ORBITAL_VISIBLE_NAMES": ", ".join(visible),
+        "BEAM_SPOT_RADIUS_M": f"{beam['spot_radius_m']:.2f}",
+        "BEAM_CONCENTRATION_X": f"{beam['concentration']:.0f}",
+        "BEAM_VAPORIZE_TIME_S": f"{beam['vaporize_time_s']:.0f}",
+        "BEAM_MIN_MIRROR_DIAMETER_M": f"{beam['min_mirror_diameter_m']:.1f}",
         "PYTHON_VERSION": platform.python_version(),
         "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }

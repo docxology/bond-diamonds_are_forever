@@ -2,30 +2,35 @@
 
 ## Scope
 
-This package analyses the three traces central to *Diamonds Are Forever*:
-conflict-diamond provenance, casino money movement, and orbital-mirror
-targeting. It is **self-contained and illustrative**: the canonical datasets
-are fixed, small, and embedded in the pure core. It is not a claim about any
-real investigation, casino, or satellite system; it is a deterministic,
-reproducible demo of the analytic methods, in the tradition of special-agent
-mission models.
+This package analyses the traces central to *Diamonds Are Forever*:
+conflict-diamond provenance and corridor routing, physical lot forensics,
+casino money movement and its Benford signature, and the orbital mirror's
+targeting geometry and beam physics. It is **self-contained and illustrative**:
+the canonical datasets are fixed, small, and embedded in the pure core. It is
+not a claim about any real investigation, casino, or satellite system; it is a
+deterministic, reproducible demo of the analytic methods, in the tradition of
+special-agent mission models.
 
 ## Related work
 
-- The conflict-diamond provenance model generalises the supply-chain
-  certification approach documented by the Kimberley Process
-  [@kimberley2003], which formalises the "documented handoff" as the unit of
-  verifiable traceability. The break-point analysis echoes the failure-mode
-  reporting of early conflict-goods investigations [@globalwitness1998].
-- The laundering-closure measure is a deterministic, closure-based variant of
-  circular money-movement detection in financial network analysis: a cycle in
-  a directed weighted graph is the structural signature of value returning to
-  its origin.
-- The orbital targeting is a simple line-of-sight / slant-range geometry; it
-  deliberately omits orbital mechanics, atmospherics, and beam physics, which
-  are out of scope for this mission package. The contrast sets the boundary:
-  this work's contribution is reproducible, deterministic analysis, not a
-  flight-dynamics claim.
+- The provenance and forensic models generalise real supply-chain certification
+  and diamond identification practice: the Kimberley Process formalises the
+  "documented handoff" as the unit of traceability [@kimberley2003], early
+  conflict-goods investigations documented the route and its gaps
+  [@globalwitness1998], and the economics of mineral-driven conflict are
+  quantified in [@berman2017]. Diamond density testing follows standard
+  gemological identification [@webster1994].
+- The corridor routing is a textbook shortest-path problem over expected cost;
+  Dijkstra's algorithm [@dijkstra1959] bounds optimality over the same search
+  space as the naive baseline.
+- The money-movement and Benford analyses draw on the laundering-detection
+  literature: circular-flow analysis and digital-auditing methods
+  [@levi2006], with first-digit testing rooted in Benford's empirical law
+  [@benford1938].
+- The beam physics uses the diffraction limit and atmospheric attenuation as
+  given in classical optics [@bornwolf1999]; it deliberately omits orbital
+  mechanics, beam-riding control, and target material science beyond a single
+  vaporization fluence, which are out of scope.
 
 The package also documents its own platform: CONFLICT STONE ({{CONFLICT_TITLE}})
 is one member of the PROJECT BOND suite, which shares the frozen BOND-API

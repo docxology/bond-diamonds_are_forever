@@ -20,8 +20,8 @@ STONE**. One package in the PROJECT BOND suite at
 
 | Surface | Rule |
 |---|---|
-| `src/diamonds_are_forever/provenance_chain.py`, `casino_network.py`, `orbital_mirror.py` | Pure domain core — stdlib math only, **no** `bond_api`/`infrastructure` imports; importable standalone |
-| `src/diamonds_are_forever/mission.py` | Thin adapter — implements the frozen `bond_api.protocol.MissionProvider`; registers gadgets |
+| `src/diamonds_are_forever/{provenance_chain,smuggling_routes,lot_forensics,casino_network,benford_audit,orbital_mirror,beam_physics}.py` | Pure domain core — stdlib math only, **no** `bond_api`/`infrastructure` imports; importable standalone |
+| `src/diamonds_are_forever/mission.py` | Thin adapter — implements the frozen `bond_api.protocol.MissionProvider`; registers gadgets (protocol shape frozen) |
 | `src/diamonds_are_forever/manuscript_variables.py`, `figures.py` | Manifest/figures over the pure core |
 | `scripts/` | Thin CLIs (brief/recon/plan/execute/debrief, run_mission, figure + manuscript-variable generators) |
 

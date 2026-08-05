@@ -1,29 +1,46 @@
-# Experiment plan for diamonds_are_forever (CONFLICT STONE).
-# Three deterministic analyses over frozen canonical datasets; no RNG.
+# Experiment plan for diamonds_are_forever (CONFLICT STONE · DIAMOND NET).
+# Seven deterministic analyses over frozen canonical datasets; no RNG.
 
 conditions:
   - id: provenance_chain
     description: "conflict-diamond custody chain: 5 handoffs, mine->fence"
     primary_metric: "documented coverage (recorded / total handoffs)"
     expected: 0.6
-    baseline: "fully-documented chain (coverage 1.0)"
-    ablation: "drop the two undocumented smuggling hops -> conflict-free"
+  - id: smuggling_corridors
+    description: "risk-weighted corridor network: 10 corridors, cargo value 5.0 M USD"
+    primary_metric: "expected-cost reduction vs fewest-hops baseline"
+    expected: 0.1614
+    baseline: "fewest-hops BFS route (expected cost 11.15)"
+    ablation: "single corridor chain -> reduction collapses to 0"
+  - id: lot_forensics
+    description: "weight/density audit of the DF-71 lot over 5 samples"
+    primary_metric: "anomaly count + verdict"
+    expected: "2 anomalies, flagrant"
+    baseline: "fully-clean lot (0 anomalies)"
+    ablation: "remove density probe -> only excessive-loss anomaly remains"
   - id: casino_network
     description: "Las Vegas money movement: 7 casinos, 9 transfers"
     primary_metric: "laundering closure (share of flow on money cycles)"
     expected: 0.7742
-    baseline: "one-way pass-through (closure 0.0)"
-    ablation: "remove cycle edges -> closure falls to 0"
+  - id: benford_ledger
+    description: "101-transaction casino ledger with round laundered deposits"
+    primary_metric: "chi-square statistic vs critical value 15.507"
+    expected: "44.06 (anomalous)"
+    baseline: "Benford-conforming natural ledger (conforms)"
+    ablation: "drop round deposits -> conforms"
   - id: orbital_mirror
     description: "geostationary mirror over Las Vegas at 36,000 km, 3 targets"
     primary_metric: "visible-face count (2 of 3) + slant range per target"
     expected_visible: 2
-    baseline: "sub-satellite target always visible"
-    ablation: "place target on far side -> occulted (not visible)"
+  - id: beam_physics
+    description: "beam delivery of a 40 m mirror at geostationary range"
+    primary_metric: "minimum mirror diameter for 1 MW/m2"
+    expected: 42.7
+    baseline: "diffraction-limited spot + Beer-Lambert attenuation"
 
-primary_metric: "deterministic reproduction of all three result tokens with zero mocks"
+primary_metric: "deterministic reproduction of all result tokens with zero mocks"
 figures:
-  expected: 3
+  expected: 7
   output_dir: output/figures
 manuscript_tokens:
   block: "manuscript/config.yaml + src/diamonds_are_forever/manuscript_variables.py"

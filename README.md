@@ -1,28 +1,35 @@
-# Diamonds Are Forever — CONFLICT STONE
+# Diamonds Are Forever — CONFLICT STONE · DIAMOND NET
 
 Special-agent mission software for the BOND film package **Diamonds Are Forever
-(1971)** — mission codename **CONFLICT STONE**.
+(1971)** — mission codename **CONFLICT STONE** (deepening phase: **DIAMOND NET**).
 
-This package fuses three deterministic, real-data analyses into a single
+This package fuses seven deterministic, real-data analyses into a single
 auditable special-agent report:
 
 | Concept | Module | Covers |
 |---|---|---|
-| Smuggled-goods provenance | `src/diamonds_are_forever/provenance_chain.py` | Conflict-diamond custody graph, documented handoffs, provenance break points |
-| Casino money movement | `src/diamonds_are_forever/casino_network.py` | Las Vegas inter-casino transfers, net positions, laundering closure, hub casino |
-| Orbital-mirror targeting | `src/diamonds_are_forever/orbital_mirror.py` | Space-mirror line-of-sight, slant range, elevation, beam delivery geometry |
+| Smuggled-goods provenance | `provenance_chain.py` | Conflict-diamond custody graph, documented handoffs, break points |
+| Corridor routing | `smuggling_routes.py` | Risk-weighted corridor network, Dijkstra least-risk route, survival, reduction |
+| Lot forensics | `lot_forensics.py` | Weight-gain / excess-loss / density-mismatch audit, verdict |
+| Casino money movement | `casino_network.py` | Inter-casino transfers, hub, money cycles, laundering closure |
+| Benford ledger audit | `benford_audit.py` | Leading-digit law test, chi-square statistic, anomalous verdict |
+| Orbital targeting | `orbital_mirror.py` | Line-of-sight, slant range, elevation geometry |
+| Beam delivery | `beam_physics.py` | Diffraction spot, atmospheric attenuation, concentration, vaporization, minimum mirror |
 
 The analytic cores are **pure** (stdlib math, no infrastructure imports), and
 `src/diamonds_are_forever/mission.py` is a thin adapter implementing the frozen
 `bond-api` `MissionProvider` protocol (brief → recon → plan → execute →
 debrief), consumed as a local path dependency.
 
-## Key result tokens
+## Headline results (all computed at runtime)
 
 - Provenance: 5 handoffs, 2 break points, 60% documented coverage.
-- Casino: 7 casinos, 9 transfers, $31M total flow, hub = `whyte_house`,
-  3 money cycles, 77% laundering closure.
-- Orbital: 3 targets at 36,000 km, 2 visible (Las Vegas, Washington DC).
+- Routing: 10 corridors; optimum route cuts seizure cost 16% vs the naive one.
+- Forensics: lot DF-71 is **flagrant** (2 weight/density anomalies).
+- Casino: 7 casinos, 77% laundering closure, hub = `whyte_house`.
+- Benford: the 101-transaction ledger is **anomalous** (chi-square 44.06).
+- Orbital: 2 of 3 targets visible at 36,000 km.
+- Beam: a 43 m mirror is the honest minimum to deliver 1 MW/m² at GEO.
 
 All numbers are computed at runtime from frozen canonical datasets; the
 manuscript reads them via `{{TOKEN}}` injection, never as hand-stated prose.
@@ -64,7 +71,7 @@ every mission outcome carries a SHA-256 fingerprint of its inputs.
 ## Project layout
 
 ```
-src/diamonds_are_forever/   pure core + mission adapter + figures + manifest vars
+src/diamonds_are_forever/   pure core (7 modules) + mission adapter + figures + manifest vars
 scripts/                    thin phase CLIs and generators
 tests/                      deterministic tests (coverage-gated, zero mocks)
 manuscript/                 config + numbered sections (`{{TOKEN}}`-driven)

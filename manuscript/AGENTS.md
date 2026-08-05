@@ -8,9 +8,9 @@ figure protocol, and the token cross-reference gate.
 
 | File / Pattern | Role |
 |---|---|
-| `00_abstract.md` | Abstract; summary tokens for all three concepts |
+| `00_abstract.md` | Abstract; summary tokens for all seven analytic lines |
 | `01_introduction.md` | Platform intro, protocol, package identity |
-| `02_methodology.md` | The three analytic methods |
+| `02_methodology.md` | The seven analytic methods |
 | `03_results.md` | All results + all figures + result tokens |
 | `04_conclusion.md` | Synthesis and guarantees |
 | `05_experimental_setup.md` | Datasets, config, environment tokens |
@@ -53,8 +53,12 @@ numbers or `\ref{}` directly:
 | Label | PNG (relative) |
 |---|---|
 | `{#fig:provenance}` | `../output/figures/provenance_chain.png` |
+| `{#fig:smuggling}` | `../output/figures/smuggling_route.png` |
+| `{#fig:lot}` | `../output/figures/lot_forensics.png` |
 | `{#fig:casino}` | `../output/figures/casino_network.png` |
+| `{#fig:benford}` | `../output/figures/benford_ledger.png` |
 | `{#fig:orbital}` | `../output/figures/orbital_visibility.png` |
+| `{#fig:beam}` | `../output/figures/beam_physics.png` |
 
 Regenerate with `scripts/generate_figures.py`; generator code lives in
 `../src/diamonds_are_forever/figures.py`.

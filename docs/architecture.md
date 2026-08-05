@@ -5,11 +5,15 @@
 ```
 src/diamonds_are_forever/
   provenance_chain.py      pure core — custody graph, break points, coverage, origin
+  smuggling_routes.py      pure core — expected-cost corridor routing, survival, reduction
+  lot_forensics.py         pure core — weight/density reconciliation audit + verdict
   casino_network.py        pure core — directed weighted transfers, hub, cycles, closure
-  orbital_mirror.py        pure core — occultation, slant range, elevation, beam delivery
+  benford_audit.py         pure core — leading-digit Benford law + chi-square verdict
+  orbital_mirror.py        pure core — occultation, slant range, elevation geometry
+  beam_physics.py          pure core — diffraction spot, attenuation, vaporization, min mirror
   mission.py               adapter — MissionProvider (brief/recon/plan/execute/debrief)
   manuscript_variables.py  {{TOKEN}} hydration (config.yaml + pure core)
-  figures.py               deterministic figure generation
+  figures.py               deterministic figure generation (7 PNGs)
 scripts/
   brief.py recon.py plan.py execute.py debrief.py   phase CLIs
   run_mission.py           full flow (+ --json)
@@ -23,7 +27,7 @@ manuscript/                config.yaml + numbered sections ({{TOKEN}}s)
 
 | Layer | Depends on | Import rules |
 |---|---|---|
-| Pure core (`provenance_chain`, `casino_network`, `orbital_mirror`) | stdlib only | NO `bond_api`, NO `infrastructure` |
+| Pure core (`provenance_chain`, `smuggling_routes`, `lot_forensics`, `casino_network`, `benford_audit`, `orbital_mirror`, `beam_physics`) | stdlib only (`beam_physics` re-uses `orbital_mirror` constants) | NO `bond_api`, NO `infrastructure` |
 | Adapter (`mission`) | pure core + `bond_api` | sole importer of `bond_api` |
 | Manifest/figures | pure core + `yaml`/`matplotlib` | reads `manuscript/config.yaml` |
 | Scripts | adapter / core | thin orchestration only |

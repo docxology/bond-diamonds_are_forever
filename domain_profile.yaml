@@ -20,8 +20,12 @@ source_policy:
 
 artifact_expectations:
   - output/figures/provenance_chain.png   # documented vs break points
+  - output/figures/smuggling_route.png    # corridor expected costs + optimum route
+  - output/figures/lot_forensics.png      # weight deltas vs cutting allowance
   - output/figures/casino_network.png     # money-movement graph
+  - output/figures/benford_ledger.png     # observed vs Benford digits
   - output/figures/orbital_visibility.png # slant-range / visibility
+  - output/figures/beam_physics.png       # irradiance vs mirror diameter
   - output/data/manuscript_variables.json # resolved {{TOKEN}} map
   - output/manuscript/                    # hydrated sections
 
