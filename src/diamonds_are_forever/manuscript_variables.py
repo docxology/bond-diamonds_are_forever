@@ -90,6 +90,11 @@ def generate_variables(
     visible = [t.name for t in targets if orbital_mirror.is_visible(satellite, t)]
 
     beam = beam_physics.beam_metrics()
+    scenario = beam_physics.canonical_beam_scenario()
+    transmittance = beam_physics.atmospheric_transmittance(
+        scenario.attenuation_per_km, scenario.atmosphere_path_km
+    )
+    occulted = [t.name for t in targets if not orbital_mirror.is_visible(satellite, t)]
 
     mission = config.get("mission", {})
     if not isinstance(mission, dict):
@@ -108,13 +113,22 @@ def generate_variables(
         "PROVENANCE_CONFLICT_FREE": str(provenance_chain.is_conflict_free(transfers)).lower(),
         "SMUGGLE_CORRIDORS": str(len(corridors.corridors())),
         "SMUGGLE_ROUTE": " -> ".join(route),
+        "SMUGGLE_NAIVE_ROUTE": " -> ".join(naive_route),
+        "SMUGGLE_CARGO_VALUE_M": f"{cargo_value:.1f}",
         "SMUGGLE_EXPECTED_COST_M": f"{route_cost:.2f}",
+        "SMUGGLE_NAIVE_COST_M": f"{naive_cost:.2f}",
         "SMUGGLE_SURVIVAL_PCT": f"{survival:.0%}",
+        "SMUGGLE_EXPOSURE_PCT": f"{smuggling_routes.route_exposure(survival):.0%}",
         "SMUGGLE_REDUCTION_PCT": f"{smuggling_routes.route_reduction(naive_cost, route_cost):.0%}",
+        "LOT_ID": lot_forensics.CANONICAL_LOT_ID,
         "LOT_SAMPLES": str(len(forensic.samples)),
         "LOT_ANOMALIES": str(len(forensic.anomalies)),
         "LOT_AUDIT_SCORE": str(forensic.score),
         "LOT_VERDICT": forensic.verdict,
+        "LOT_CUTTING_ALLOWANCE_PCT": f"{lot_forensics.CUTTING_LOSS_LIMIT:.0%}",
+        "LOT_DENSITY_NOMINAL": f"{lot_forensics.DIAMOND_DENSITY_G_CM3:.2f}",
+        "LOT_DENSITY_MIN": f"{lot_forensics.DENSITY_MIN_G_CM3:.2f}",
+        "LOT_DENSITY_MAX": f"{lot_forensics.DENSITY_MAX_G_CM3:.2f}",
         "CASINO_CASINOS": str(len(network.casinos())),
         "CASINO_TRANSFERS": str(len(network.transfers())),
         "CASINO_TOTAL_FLOW_M": f"{network.total_flow():.1f}",
@@ -123,14 +137,26 @@ def generate_variables(
         "CASINO_LAUNDERING_CLOSURE_PCT": f"{closure:.0%}",
         "BENFORD_TRANSACTIONS": str(ledger.transactions),
         "BENFORD_CHI_SQUARE": f"{ledger.chi_square:.2f}",
+        "BENFORD_CRITICAL_VALUE": f"{ledger.critical_value:.3f}",
+        "BENFORD_ALPHA": f"{benford_audit.BENFORD_ALPHA:g}",
+        "BENFORD_DF": str(benford_audit.BENFORD_DEGREES_OF_FREEDOM),
         "BENFORD_VERDICT": "conforms" if ledger.conforms else "anomalous",
         "ORBITAL_ALTITUDE_KM": f"{satellite.altitude_km:.0f}",
         "ORBITAL_TARGETS": str(len(targets)),
         "ORBITAL_VISIBLE_TARGETS": str(len(visible)),
         "ORBITAL_VISIBLE_NAMES": ", ".join(visible),
+        "ORBITAL_OCCULTED_NAMES": ", ".join(occulted),
+        "BEAM_MIRROR_DIAMETER_M": f"{scenario.mirror_diameter_m:.0f}",
+        "BEAM_WAVELENGTH_NM": f"{scenario.wavelength_m * 1.0e9:.0f}",
+        "BEAM_SLANT_RANGE_KM": f"{scenario.slant_range_km:,.0f}",
+        "BEAM_TRANSMITTANCE_PCT": f"{transmittance:.0%}",
         "BEAM_SPOT_RADIUS_M": f"{beam['spot_radius_m']:.2f}",
+        "BEAM_IRRADIANCE_W_M2": f"{beam['irradiance_w_m2']:,.0f}",
         "BEAM_CONCENTRATION_X": f"{beam['concentration']:.0f}",
         "BEAM_VAPORIZE_TIME_S": f"{beam['vaporize_time_s']:.0f}",
+        "BEAM_REQUIRED_IRRADIANCE_MW": (
+            f"{beam_physics.REQUIRED_STRIKE_IRRADIANCE_W_M2 / 1.0e6:g}"
+        ),
         "BEAM_MIN_MIRROR_DIAMETER_M": f"{beam['min_mirror_diameter_m']:.1f}",
         "PYTHON_VERSION": platform.python_version(),
         "GENERATION_TIMESTAMP": datetime.now(timezone.utc).isoformat(timespec="seconds"),

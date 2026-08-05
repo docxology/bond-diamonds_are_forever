@@ -99,7 +99,7 @@ def generate_lot_figure(output_path: str | Path) -> Path:
     report = lot_forensics.audit_lot(samples)
     labels = [f"{s.from_actor}->{s.to_actor}" for s in samples]
     deltas = list(report.deltas_g)
-    allowances = [s.weight_in_g * 0.25 for s in samples]
+    allowances = [s.weight_in_g * lot_forensics.CUTTING_LOSS_LIMIT for s in samples]
     figure, axis = plt.subplots(figsize=(9, 4))
     axis.bar(range(len(labels)), deltas, color="#0f766e")
     axis.plot(
@@ -204,7 +204,7 @@ def generate_beam_figure(output_path: str | Path) -> Path:
         beam_physics.REQUIRED_STRIKE_IRRADIANCE_W_M2,
         color="#b91c1c",
         linestyle="--",
-        label="1 MW/m2 strike requirement",
+        label=f"{beam_physics.REQUIRED_STRIKE_IRRADIANCE_W_M2 / 1.0e6:g} MW/m2 strike requirement",
     )
     axis.axvline(minimum, color="#334155", linestyle=":", label=f"min diameter {minimum:.1f} m")
     axis.set_xlabel("mirror diameter (m)")

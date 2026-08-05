@@ -5,7 +5,7 @@
 
 paper:
   title: "Diamonds Are Forever: CONFLICT STONE — Special-Agent Mission Software"
-  subtitle: "Deterministic Analysis of Smuggled-Goods Provenance, Casino Money Movement, and Orbital-Mirror Targeting"
+  subtitle: "Deterministic Analysis of Smuggled-Goods Provenance and Routing, Lot Forensics, Casino Money Movement and Its Benford Signature, and Orbital-Mirror Targeting and Beam Delivery"
   version: "0.1.0"
   date: "2026-08-04"
 
@@ -23,9 +23,13 @@ authors:
 keywords:
   - "conflict diamonds"
   - "supply-chain provenance"
+  - "risk-weighted routing"
+  - "forensic gemology"
   - "money laundering"
+  - "Benford's law"
   - "network analysis"
   - "orbital targeting geometry"
+  - "beam delivery physics"
   - "deterministic mission software"
 
 metadata:

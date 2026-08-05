@@ -227,3 +227,33 @@ def test_naive_hops_unreachable() -> None:
 def test_route_reduction_zero_for_empty_baseline() -> None:
     assert route_reduction(0.0, 0.0) == 0.0
     assert route_reduction(-1.0, 0.0) == 0.0
+
+
+def test_dijkstra_discards_stale_heap_entries() -> None:
+    """A node relaxed twice leaves a superseded heap entry that must be skipped.
+
+    ``mid`` is reached first via the cheap-prefix/expensive-suffix leg through
+    ``alpha`` (total 11), then improved to 3 via ``bravo``, so two entries for
+    ``mid`` coexist in the heap. The long ``mid -> end`` leg (cost 20) keeps the
+    destination behind the stale entry in pop order, so the stale ``(11, mid)``
+    entry really is popped and must be discarded rather than re-expanded.
+    """
+    network = SmugglingNetwork()
+    for source, target, cost in (
+        ("origin", "alpha", 1.0),
+        ("origin", "bravo", 2.0),
+        ("alpha", "mid", 10.0),
+        ("bravo", "mid", 1.0),
+        ("mid", "end", 20.0),
+    ):
+        network.add_corridor(Corridor(source, target, cost, 0.0))
+    path, cost, survival = least_risk_route(network, "origin", "end", 1.0)
+    assert path == ("origin", "bravo", "mid", "end")
+    assert cost == pytest.approx(23.0)
+    assert survival == pytest.approx(1.0)
+
+
+def test_route_reduction_is_zero_for_a_degenerate_baseline() -> None:
+    """A free naive route cannot produce a negative or infinite reduction."""
+    assert route_reduction(0.0, 0.0) == 0.0
+    assert route_reduction(-1.0, 5.0) == 0.0

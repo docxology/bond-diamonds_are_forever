@@ -5,6 +5,11 @@ from __future__ import annotations
 import pytest
 
 from diamonds_are_forever.lot_forensics import (
+    CANONICAL_LOT_ID,
+    CUTTING_LOSS_LIMIT,
+    DENSITY_MAX_G_CM3,
+    DENSITY_MIN_G_CM3,
+    DIAMOND_DENSITY_G_CM3,
     HandoffSample,
     LotForensicError,
     audit_lot,
@@ -158,3 +163,23 @@ def test_audit_rejects_negative_cutting_limit() -> None:
 def test_audit_rejects_inverted_density_window() -> None:
     with pytest.raises(LotForensicError):
         audit_lot((_sample(1.0, 1.0),), density_min=3.8, density_max=3.4)
+
+
+def test_sample_rejects_a_non_numeric_density() -> None:
+    with pytest.raises(TypeError, match="measured_density_g_cm3"):
+        HandoffSample("L", "a", "b", 1.0, 1.0, measured_density_g_cm3="heavy")  # type: ignore[arg-type]
+
+
+def test_audit_defaults_are_the_published_module_constants() -> None:
+    """The manuscript cites these thresholds; the defaults must be them."""
+    assert CUTTING_LOSS_LIMIT == 0.25
+    assert DENSITY_MIN_G_CM3 < DIAMOND_DENSITY_G_CM3 < DENSITY_MAX_G_CM3
+    # A loss exactly at the allowance is legitimate; a hair beyond it is not.
+    at_limit = audit_lot([_sample(10.0, 10.0 - 10.0 * CUTTING_LOSS_LIMIT)])
+    assert at_limit.verdict == "clean"
+    beyond = audit_lot([_sample(10.0, 10.0 - 10.0 * CUTTING_LOSS_LIMIT - 0.01)])
+    assert beyond.anomalies[0][1] == "excessive_loss"
+
+
+def test_canonical_samples_all_carry_the_published_lot_id() -> None:
+    assert {s.lot for s in canonical_lot_samples()} == {CANONICAL_LOT_ID}

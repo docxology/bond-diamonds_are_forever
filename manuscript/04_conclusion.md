@@ -13,10 +13,14 @@ seizure cost by {{SMUGGLE_REDUCTION_PCT}} over the naïve route. Weight and
 density forensics independently convict the lot (verdict
 **{{LOT_VERDICT}}**), the casino wash shows a laundering closure of
 {{CASINO_LAUNDERING_CLOSURE_PCT}}, and the ledger fails Benford's law
-(**{{BENFORD_VERDICT}}**). Finally, orbital physics grounds the space-weapon
-threat in real beam geometry: the mirror's reach is hard-bounded by Earth's
-curvature, and delivering a strike-class beam with a plausible mirror is shown
-to be physically demanding.
+(chi-square {{BENFORD_CHI_SQUARE}} against a {{BENFORD_CRITICAL_VALUE}}
+critical value: **{{BENFORD_VERDICT}}**). Finally, orbital physics grounds the
+space-weapon threat in real beam geometry: only
+{{ORBITAL_VISIBLE_TARGETS}} of {{ORBITAL_TARGETS}} targets are reachable at
+all, because the mirror's reach is hard-bounded by Earth's curvature, and
+delivering {{BEAM_REQUIRED_IRRADIANCE_MW}} MW/m2 at that range needs a
+{{BEAM_MIN_MIRROR_DIAMETER_M}}-m aperture — the film's weapon is not impossible
+so much as unaffordably large and slow.
 
 By keeping the analytic cores pure and infrastructure-free, and by making the
 mission adapter a thin declarative layer over the frozen BOND-API protocol, the

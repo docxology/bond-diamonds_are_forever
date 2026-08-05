@@ -50,7 +50,10 @@ def test_run_mission_json() -> None:
     assert '"__bond_type__": "MissionOutcome"' in result.stdout
 
 
-def test_generate_figures_writes_pngs(tmp_path: Path) -> None:
+def test_generate_figures_writes_pngs() -> None:
+    # No tmp_path: this asserts the *script's* real output location under the
+    # package root (output/ is disposable and git-ignored). Taking a tmp_path
+    # fixture here would have implied an isolation the test never had.
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / "generate_figures.py")],
         cwd=ROOT,

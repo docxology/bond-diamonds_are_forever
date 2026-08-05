@@ -1,38 +1,80 @@
 # Diamonds Are Forever — CONFLICT STONE · DIAMOND NET
 
 Special-agent mission software for the BOND film package **Diamonds Are Forever
-(1971)** — mission codename **CONFLICT STONE** (deepening phase: **DIAMOND NET**).
+(1971)** — mission codename **CONFLICT STONE** (deepening phase: **DIAMOND
+NET**).
 
-This package fuses seven deterministic, real-data analyses into a single
-auditable special-agent report:
+## The film as a specification
 
-| Concept | Module | Covers |
+*Diamonds Are Forever* is one operation seen end to end: stones leave an
+African mine without certification, move through a smuggling corridor to
+Amsterdam and on to Las Vegas, get swapped and skimmed along the way, are
+washed through a casino empire, and pay for an orbital mirror that threatens
+cities from geostationary orbit. Each of those stages is a real analytic
+problem, and this package implements one deterministic module per stage.
+
+| Film concept | Module | What it computes |
 |---|---|---|
-| Smuggled-goods provenance | `provenance_chain.py` | Conflict-diamond custody graph, documented handoffs, break points |
-| Corridor routing | `smuggling_routes.py` | Risk-weighted corridor network, Dijkstra least-risk route, survival, reduction |
-| Lot forensics | `lot_forensics.py` | Weight-gain / excess-loss / density-mismatch audit, verdict |
-| Casino money movement | `casino_network.py` | Inter-casino transfers, hub, money cycles, laundering closure |
-| Benford ledger audit | `benford_audit.py` | Leading-digit law test, chi-square statistic, anomalous verdict |
-| Orbital targeting | `orbital_mirror.py` | Line-of-sight, slant range, elevation geometry |
-| Beam delivery | `beam_physics.py` | Diffraction spot, atmospheric attenuation, concentration, vaporization, minimum mirror |
+| Conflict-goods provenance | `provenance_chain.py` | Custody graph, documented handoffs, break points, coverage, origin tracing |
+| The smuggling corridor | `smuggling_routes.py` | Risk-weighted corridor network; expected-cost Dijkstra optimum vs. a fewest-hops BFS baseline; survival, exposure, reduction |
+| Are the stones real? | `lot_forensics.py` | Weight-gain / excess-loss / density-mismatch audit with a clean/suspicious/flagrant verdict |
+| The Las Vegas wash | `casino_network.py` | Directed transfer graph, gross/net flow, hub, money cycles, laundering closure |
+| The books don't add up | `benford_audit.py` | Leading-digit Benford test with a Pearson chi-square verdict |
+| Where can the mirror strike? | `orbital_mirror.py` | Occultation, slant range, elevation geometry |
+| What does the beam deliver? | `beam_physics.py` | Diffraction spot, Beer-Lambert attenuation, power budget, vaporization dwell, minimum mirror diameter |
 
-The analytic cores are **pure** (stdlib math, no infrastructure imports), and
-`src/diamonds_are_forever/mission.py` is a thin adapter implementing the frozen
-`bond-api` `MissionProvider` protocol (brief → recon → plan → execute →
-debrief), consumed as a local path dependency.
+The last one is the point of the exercise: the film's weapon is bounded by
+optics, and the module says by how much rather than taking the plot's word for
+it.
 
-## Headline results (all computed at runtime)
+Supporting modules: `mission.py` (the protocol adapter), `figures.py` (seven
+deterministic PNGs), `manuscript_variables.py` (`{{TOKEN}}` hydration).
 
-- Provenance: 5 handoffs, 2 break points, 60% documented coverage.
-- Routing: 10 corridors; optimum route cuts seizure cost 16% vs the naive one.
-- Forensics: lot DF-71 is **flagrant** (2 weight/density anomalies).
-- Casino: 7 casinos, 77% laundering closure, hub = `whyte_house`.
-- Benford: the 101-transaction ledger is **anomalous** (chi-square 44.06).
-- Orbital: 2 of 3 targets visible at 36,000 km.
-- Beam: a 43 m mirror is the honest minimum to deliver 1 MW/m² at GEO.
+## The MissionProvider surface
 
-All numbers are computed at runtime from frozen canonical datasets; the
-manuscript reads them via `{{TOKEN}}` injection, never as hand-stated prose.
+`src/diamonds_are_forever/mission.py` implements the **frozen** `bond-api`
+`MissionProvider` protocol, consumed as a local path dependency:
+
+```python
+class MissionProvider:
+    film = "diamonds_are_forever"
+
+    def brief(self) -> MissionBrief: ...              # 6 objectives, 6 assets, 2 constraints
+    def recon(self, request: ReconRequest) -> ReconReport: ...
+    def plan(self, brief: MissionBrief) -> MissionPlan: ...      # 7 steps, one per concept
+    def execute(self, plan: MissionPlan) -> MissionOutcome: ...  # results + SHA-256 provenance
+    def debrief(self, outcome: MissionOutcome) -> Debrief: ...   # 8 standing lessons
+```
+
+Alongside it, `register_gadgets(registry)` publishes eleven named callables
+(`provenance.break_points`, `smuggling.route`, `forensics.audit`, `casino.hub`,
+`benford.report`, `orbital.visible`, `beam.metrics`, …) into the Q-branch
+registry. **This whole surface — the method signatures and the gadget names —
+is frozen**: `bond-cli`, the coordinator's reconcile pass, and the orchestrator
+consume it across packages. Deepening happens inside the methods.
+
+The analytic cores stay **pure** (stdlib math, no `bond_api` or
+`infrastructure` imports) so they remain importable and testable even if the
+path dependency is unavailable.
+
+## Results
+
+Every number this package reports is computed at runtime from frozen canonical
+datasets — the manuscript reads them through `{{TOKEN}}` injection and never
+states one in prose. That deliberately includes model constants (the cutting
+allowance, the density window, the Benford critical value, the strike
+requirement), which are exported as named constants from their owning module.
+
+This README therefore quotes no figures. To see the current ones:
+
+```bash
+uv run python scripts/run_mission.py --json     # the full mission outcome
+uv run python scripts/z_generate_manuscript_variables.py
+cat output/data/manuscript_variables.json       # every token and its live value
+```
+
+`data/claim_ledger.yaml` maps each headline claim to the exact call that
+produces it.
 
 ## Usage
 
@@ -65,8 +107,13 @@ uv run ruff format --check src/ scripts/
 uv run mypy src/ scripts/
 ```
 
-Deterministic by construction: fixed canonical datasets, no RNG, no mocks, and
-every mission outcome carries a SHA-256 fingerprint of its inputs.
+The coverage gate is a 90% floor on `src/` (line + branch); the suite currently
+sits well above it, and `--cov-fail-under=90` is the number that matters rather
+than any figure quoted in prose. Zero mocks, zero skips.
+
+Deterministic by construction: fixed canonical datasets, no RNG, and every
+mission outcome carries a SHA-256 fingerprint of its inputs, so two runs
+produce byte-identical debriefs.
 
 ## Project layout
 
@@ -74,6 +121,11 @@ every mission outcome carries a SHA-256 fingerprint of its inputs.
 src/diamonds_are_forever/   pure core (7 modules) + mission adapter + figures + manifest vars
 scripts/                    thin phase CLIs and generators
 tests/                      deterministic tests (coverage-gated, zero mocks)
-manuscript/                 config + numbered sections (`{{TOKEN}}`-driven)
+manuscript/                 config + numbered sections ({{TOKEN}}-driven)
 docs/                       agent instructions, architecture, testing philosophy
+data/claim_ledger.yaml      headline claims mapped to the calls that produce them
+output/                     regenerated artifacts (figures, hydrated manuscript) — disposable
 ```
+
+Start with [`docs/README.md`](docs/README.md) for the documentation index, or
+[`docs/architecture.md`](docs/architecture.md) for the module-by-module design.

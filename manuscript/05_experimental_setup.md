@@ -12,21 +12,29 @@ of the analysis: {{CONFLICT_KEYWORDS}}.
 the mine-to-fence route; break points are flagged at build time.
 
 **Smuggling dataset.** A {{SMUGGLE_CORRIDORS}}-corridor directed network of
-transport costs and seizure probabilities, given a cargo value of
-${{SMUGGLE_EXPECTED_COST_M}} million US dollars. The least-risk route is computed
-by a deterministic Dijkstra; the baseline is a fewest-hops BFS in the same
-network.
+transport costs and seizure probabilities, carrying a cargo valued at
+{{SMUGGLE_CARGO_VALUE_M}} million US dollars. The least-risk route is computed
+by a deterministic Dijkstra over expected cost; the baseline is a fewest-hops
+BFS in the same network, which bounds the reduction metric below at zero.
 
 **Forensic dataset.** {{LOT_SAMPLES}} weight/density handoff samples for lot
-DF-71, audited against a {{LOT_AUDIT_SCORE}} score.
+{{LOT_ID}}, audited against a {{LOT_CUTTING_ALLOWANCE_PCT}} per-handoff cutting
+allowance and a {{LOT_DENSITY_MIN}}-{{LOT_DENSITY_MAX}} g/cm3 density window
+(nominal {{LOT_DENSITY_NOMINAL}}), yielding a {{LOT_AUDIT_SCORE}}-point score.
 
 **Casino dataset.** {{CASINO_CASINOS}} casinos with {{CASINO_TRANSFERS}}
 transfers totalling {{CASINO_TOTAL_FLOW_M}} million US dollars, and a
-{{BENFORD_TRANSACTIONS}}-transaction ledger for the digit-law test.
+{{BENFORD_TRANSACTIONS}}-transaction ledger tested at df={{BENFORD_DF}},
+alpha={{BENFORD_ALPHA}} (critical value {{BENFORD_CRITICAL_VALUE}}).
 
 **Orbital dataset.** {{ORBITAL_TARGETS}} ground targets surveyed from a
-geostationary post at {{ORBITAL_ALTITUDE_KM}} km, plus the beam-physics
-scenario (mirror size, wavelength, slant range, atmospheric attenuation).
+geostationary post at {{ORBITAL_ALTITUDE_KM}} km.
+
+**Beam scenario.** A {{BEAM_MIRROR_DIAMETER_M}} m mirror at
+{{BEAM_WAVELENGTH_NM}} nm over a {{BEAM_SLANT_RANGE_KM}} km slant range, with
+atmospheric attenuation giving a transmittance of
+{{BEAM_TRANSMITTANCE_PCT}}; the strike requirement against which the minimum
+mirror is solved is {{BEAM_REQUIRED_IRRADIANCE_MW}} MW/m2.
 
 **Software environment.** Python {{PYTHON_VERSION}}, resolved at generation
 time. Variable generation timestamp: {{GENERATION_TIMESTAMP}} (UTC).

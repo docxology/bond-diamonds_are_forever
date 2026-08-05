@@ -21,7 +21,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 __all__ = [
+    "BENFORD_ALPHA",
     "BENFORD_CRITICAL_VALUE_05",
+    "BENFORD_DEGREES_OF_FREEDOM",
     "BenfordReport",
     "benford_chi_square",
     "benford_report",
@@ -32,6 +34,10 @@ __all__ = [
 
 #: chi-square critical value, df=8, alpha=0.05.
 BENFORD_CRITICAL_VALUE_05 = 15.507
+#: Degrees of freedom of the leading-digit test (nine digit classes minus one).
+BENFORD_DEGREES_OF_FREEDOM = 8
+#: Significance level the critical value is taken at.
+BENFORD_ALPHA = 0.05
 
 
 @dataclass(frozen=True)
@@ -48,6 +54,24 @@ class BenfordReport:
 def first_digit(value: float) -> int:
     """Leading digit (1-9) of a positive number.
 
+    The digit is derived by exact integer arithmetic on the value's rational
+    representation, deliberately avoiding two tempting shortcuts:
+
+    * **iterative scaling** (``while m < 1.0: m *= 10.0``) re-rounds on every
+      step, so error compounds across the exponent range and small magnitudes
+      drift into the neighbouring digit — ``1e-300`` scales to
+      ``9.999999999999993`` and reads as a 9;
+    * **formatted output** (``f"{v:.17e}"[0]``) *rounds* the mantissa, so a
+      value whose exact expansion is ``6.999999999999999999e-304`` reads as a
+      7.
+
+    Scaling ``as_integer_ratio()`` in exact integers has neither failure mode.
+    Note the semantics this fixes: the digit describes the ``float`` actually
+    held, so a decimal literal whose nearest double sits just below a power of
+    ten (``7e-304`` is stored as ``6.9999...e-304``) reads as the lower digit.
+    That is the correct statement about the number the program is auditing.
+    Benford's law is defined by truncation, so no rounding is applied anywhere.
+
     Raises:
         TypeError: if ``value`` is not a number.
         ValueError: if ``value`` is not positive.
@@ -56,15 +80,12 @@ def first_digit(value: float) -> int:
         raise TypeError("value must be a non-boolean number")
     if value <= 0:
         raise ValueError("first digit is undefined for non-positive values")
-    magnitude = abs(float(value))
-    while magnitude >= 10.0:
-        magnitude /= 10.0
-    while magnitude < 1.0:
-        magnitude *= 10.0
-    digit = int(magnitude)
-    if digit == 10:  # floating-point clamp (9.999... after scaling)
-        digit = 1
-    return digit
+    numerator, denominator = abs(float(value)).as_integer_ratio()
+    while numerator >= 10 * denominator:
+        denominator *= 10
+    while numerator < denominator:
+        numerator *= 10
+    return numerator // denominator
 
 
 def expected_benford_frequency(digit: int) -> float:
@@ -114,9 +135,9 @@ def benford_report(amounts: Sequence[float]) -> BenfordReport:
 
 
 def canonical_ledger_amounts() -> tuple[float, ...]:
-    """The canonical CONFLICT STONE casino ledger.
+    """The canonical CONFLICT STONE casino ledger (101 transactions).
 
-    Forty varied "natural" amounts sit beside sixty suspiciously round
+    Forty varied "natural" amounts sit beside sixty-one suspiciously round
     deposits (laundered cash) clustered on 10^4/2x10^4/5x10^4-style figures,
     so the leading digits skew toward 1, 2, and 5 and the chi-square statistic
     exceeds the critical value — the laundering signal the audit must catch.

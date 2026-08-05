@@ -19,7 +19,7 @@ if str(SRC) not in sys.path:
 from bond_api.protocol import ReconRequest, run_mission
 from bond_api.serialization import to_json
 
-from diamonds_are_forever.mission import MissionProvider
+from diamonds_are_forever.mission import CODENAME, MissionProvider
 
 
 def main() -> int:
@@ -27,11 +27,11 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="print the outcome as round-trip JSON")
     args = parser.parse_args()
 
-    debrief = run_mission(
-        MissionProvider(), ReconRequest(goal="survey domains and execute the audit")
-    )
+    provider = MissionProvider()
+    debrief = run_mission(provider, ReconRequest(goal="survey domains and execute the audit"))
     outcome = debrief.outcome
-    print(f"Film: {outcome.provenance.package_version} CONFLICT STONE")
+    print(f"Film: {provider.film} ({CODENAME})")
+    print(f"Package version: {outcome.provenance.package_version}")
     print(f"Success: {outcome.success}")
     print(f"Input hash: {outcome.provenance.input_hash}")
     print(f"Lessons: {len(debrief.lessons)}")

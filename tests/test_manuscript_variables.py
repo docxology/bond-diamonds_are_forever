@@ -8,6 +8,13 @@ from pathlib import Path
 import pytest
 import yaml
 
+from diamonds_are_forever import (
+    beam_physics,
+    benford_audit,
+    lot_forensics,
+    orbital_mirror,
+    smuggling_routes,
+)
 from diamonds_are_forever import manuscript_variables as mv
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,13 +47,22 @@ def test_generate_variables_all_expected_keys() -> None:
         "PROVENANCE_CONFLICT_FREE",
         "SMUGGLE_CORRIDORS",
         "SMUGGLE_ROUTE",
+        "SMUGGLE_NAIVE_ROUTE",
+        "SMUGGLE_CARGO_VALUE_M",
         "SMUGGLE_EXPECTED_COST_M",
+        "SMUGGLE_NAIVE_COST_M",
         "SMUGGLE_SURVIVAL_PCT",
+        "SMUGGLE_EXPOSURE_PCT",
         "SMUGGLE_REDUCTION_PCT",
+        "LOT_ID",
         "LOT_SAMPLES",
         "LOT_ANOMALIES",
         "LOT_AUDIT_SCORE",
         "LOT_VERDICT",
+        "LOT_CUTTING_ALLOWANCE_PCT",
+        "LOT_DENSITY_NOMINAL",
+        "LOT_DENSITY_MIN",
+        "LOT_DENSITY_MAX",
         "CASINO_CASINOS",
         "CASINO_TRANSFERS",
         "CASINO_TOTAL_FLOW_M",
@@ -55,14 +71,24 @@ def test_generate_variables_all_expected_keys() -> None:
         "CASINO_LAUNDERING_CLOSURE_PCT",
         "BENFORD_TRANSACTIONS",
         "BENFORD_CHI_SQUARE",
+        "BENFORD_CRITICAL_VALUE",
+        "BENFORD_ALPHA",
+        "BENFORD_DF",
         "BENFORD_VERDICT",
         "ORBITAL_ALTITUDE_KM",
         "ORBITAL_TARGETS",
         "ORBITAL_VISIBLE_TARGETS",
         "ORBITAL_VISIBLE_NAMES",
+        "ORBITAL_OCCULTED_NAMES",
+        "BEAM_MIRROR_DIAMETER_M",
+        "BEAM_WAVELENGTH_NM",
+        "BEAM_SLANT_RANGE_KM",
+        "BEAM_TRANSMITTANCE_PCT",
         "BEAM_SPOT_RADIUS_M",
+        "BEAM_IRRADIANCE_W_M2",
         "BEAM_CONCENTRATION_X",
         "BEAM_VAPORIZE_TIME_S",
+        "BEAM_REQUIRED_IRRADIANCE_MW",
         "BEAM_MIN_MIRROR_DIAMETER_M",
         "PYTHON_VERSION",
         "GENERATION_TIMESTAMP",
@@ -92,6 +118,46 @@ def test_generate_variables_values_track_canonical_core() -> None:
     assert variables["BENFORD_VERDICT"] == "anomalous"
     assert variables["BEAM_MIN_MIRROR_DIAMETER_M"] != ""
     assert "T" in variables["GENERATION_TIMESTAMP"]  # ISO-8601 date-time separator
+
+
+def test_model_constant_tokens_track_the_core_constants() -> None:
+    """Tokens that stand in for model constants must be derived, not restated."""
+    variables = mv.generate_variables()
+    assert variables["LOT_ID"] == lot_forensics.CANONICAL_LOT_ID
+    assert variables["LOT_CUTTING_ALLOWANCE_PCT"] == f"{lot_forensics.CUTTING_LOSS_LIMIT:.0%}"
+    assert variables["LOT_DENSITY_MIN"] == f"{lot_forensics.DENSITY_MIN_G_CM3:.2f}"
+    assert variables["LOT_DENSITY_MAX"] == f"{lot_forensics.DENSITY_MAX_G_CM3:.2f}"
+    assert variables["LOT_DENSITY_NOMINAL"] == f"{lot_forensics.DIAMOND_DENSITY_G_CM3:.2f}"
+    assert variables["BENFORD_DF"] == str(benford_audit.BENFORD_DEGREES_OF_FREEDOM)
+    assert variables["BENFORD_ALPHA"] == f"{benford_audit.BENFORD_ALPHA:g}"
+    assert variables["BENFORD_CRITICAL_VALUE"] == f"{benford_audit.BENFORD_CRITICAL_VALUE_05:.3f}"
+    assert variables["BEAM_REQUIRED_IRRADIANCE_MW"] == (
+        f"{beam_physics.REQUIRED_STRIKE_IRRADIANCE_W_M2 / 1.0e6:g}"
+    )
+    assert variables["BEAM_MIRROR_DIAMETER_M"] == (
+        f"{beam_physics.canonical_beam_scenario().mirror_diameter_m:.0f}"
+    )
+    assert variables["SMUGGLE_CARGO_VALUE_M"] == (
+        f"{smuggling_routes.canonical_cargo_value_m():.1f}"
+    )
+
+
+def test_visible_and_occulted_names_partition_the_targets() -> None:
+    """Every canonical target is reported exactly once, as visible or occulted."""
+    variables = mv.generate_variables()
+    visible = [n for n in variables["ORBITAL_VISIBLE_NAMES"].split(", ") if n]
+    occulted = [n for n in variables["ORBITAL_OCCULTED_NAMES"].split(", ") if n]
+    all_names = [target.name for target in orbital_mirror.canonical_targets()]
+    assert sorted(visible + occulted) == sorted(all_names)
+    assert not set(visible) & set(occulted)
+    assert variables["ORBITAL_VISIBLE_TARGETS"] == str(len(visible))
+
+
+def test_naive_route_is_never_cheaper_than_the_optimum() -> None:
+    """The reduction token can only be non-negative — same graph, same endpoints."""
+    variables = mv.generate_variables()
+    assert float(variables["SMUGGLE_NAIVE_COST_M"]) >= float(variables["SMUGGLE_EXPECTED_COST_M"])
+    assert not variables["SMUGGLE_REDUCTION_PCT"].startswith("-")
 
 
 def test_live_token_cross_reference() -> None:

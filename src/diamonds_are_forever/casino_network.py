@@ -66,11 +66,11 @@ class CasinoNetwork:
 
     def total_inflow(self, casino: str) -> float:
         """Total money flowing into ``casino`` (0.0 for an unknown casino)."""
-        return sum(amount for (_, target), amount in self._edges.items() if target == casino)
+        return float(sum(amount for (_, target), amount in self._edges.items() if target == casino))
 
     def total_outflow(self, casino: str) -> float:
         """Total money flowing out of ``casino`` (0.0 for an unknown casino)."""
-        return sum(amount for (source, _), amount in self._edges.items() if source == casino)
+        return float(sum(amount for (source, _), amount in self._edges.items() if source == casino))
 
     def net_flow(self, casino: str) -> float:
         """Net ledger position of ``casino`` (inflow minus outflow)."""
@@ -100,6 +100,13 @@ class CasinoNetwork:
 
         A cycle is reported once as ``(n0, n1, ..., n0)``, the nodes visited in
         DFS discovery order at the point the back edge is found.
+
+        No de-duplication pass is needed, and deliberately none is performed:
+        edges are unique by construction (``_edges`` is keyed on
+        ``(source, target)``, so repeated wires accumulate into one edge), and
+        each node is expanded exactly once, so every back edge is traversed
+        exactly once and yields exactly one cycle. A ``if cycle not in seen``
+        guard here would be a branch that can never reject.
         """
         adjacency: dict[str, list[str]] = defaultdict(list)
         for source, target in self._edges:
@@ -108,7 +115,6 @@ class CasinoNetwork:
         state: dict[str, int] = {node: 0 for node in nodes}  # 0 unvisited, 1 in-stack, 2 done
         stack: list[str] = []
         cycles: list[tuple[str, ...]] = []
-        discovered: list[tuple[str, ...]] = []
 
         def visit(node: str) -> None:
             state[node] = 1
@@ -116,10 +122,7 @@ class CasinoNetwork:
             for nxt in adjacency.get(node, ()):
                 if state.get(nxt, 0) == 1:
                     start = stack.index(nxt)
-                    cycle = tuple(stack[start:] + [nxt])
-                    if cycle not in discovered:
-                        discovered.append(cycle)
-                        cycles.append(cycle)
+                    cycles.append(tuple(stack[start:] + [nxt]))
                 elif state.get(nxt, 0) == 0:
                     visit(nxt)
             stack.pop()

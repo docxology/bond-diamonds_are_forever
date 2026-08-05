@@ -164,3 +164,49 @@ def test_add_transfer_rejects_non_number() -> None:
 def test_add_transfer_rejects_bool_amount() -> None:
     with pytest.raises(CaminoError):
         CasinoNetwork().add_transfer("a", "b", True)  # type: ignore[arg-type]
+
+
+def test_cycle_search_skips_already_finished_successors() -> None:
+    """A successor whose DFS is complete is neither a back edge nor re-entered.
+
+    ``a`` and ``b`` both lead into ``shared``; by the time ``b`` is explored,
+    ``shared`` is finished (state 2), so the scan must fall through both the
+    back-edge test and the recursion test and carry on to ``b``'s *second*
+    successor without reporting a spurious cycle.
+    """
+    network = CasinoNetwork()
+    network.add_transfer("a", "shared", 1.0)
+    network.add_transfer("b", "shared", 1.0)
+    network.add_transfer("b", "zulu", 1.0)
+    network.add_transfer("shared", "sink", 1.0)
+    assert network.find_money_cycles() == ()
+    assert network.laundering_closure() == 0.0
+    # The second successor really was reached (it is a node of the graph).
+    assert "zulu" in network.casinos()
+
+
+def test_reported_cycles_are_distinct_without_a_dedup_pass() -> None:
+    """Uniqueness is structural, not filtered — assert it holds on a dense graph.
+
+    Every back edge is traversed once and edges are unique by construction, so
+    the enumerator needs no de-duplication guard. This test is what stands in
+    for that removed guard: if the invariant ever breaks, duplicates appear
+    here rather than being silently swallowed.
+    """
+    network = CasinoNetwork()
+    for source, target in (
+        ("a", "b"),
+        ("b", "a"),
+        ("b", "c"),
+        ("c", "a"),
+        ("c", "b"),
+        ("a", "c"),
+    ):
+        network.add_transfer(source, target, 1.0)
+    cycles = network.find_money_cycles()
+    assert len(cycles) == len(set(cycles)), cycles
+    assert cycles, "the dense graph must actually contain cycles"
+    for cycle in cycles:
+        assert cycle[0] == cycle[-1]
+    # Canonical network is unchanged by removing the guard.
+    assert len(canonical_network().find_money_cycles()) == 3

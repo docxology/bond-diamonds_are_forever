@@ -18,7 +18,7 @@ optimum ({{SMUGGLE_ROUTE}}) cuts seizure exposure by
 {{SMUGGLE_REDUCTION_PCT}} versus the fewest-hops baseline, at a survival
 probability of {{SMUGGLE_SURVIVAL_PCT}}.
 
-**Forensics.** Weight and density testing of lot DF-71 surface
+**Forensics.** Weight and density testing of lot {{LOT_ID}} surface
 {{LOT_ANOMALIES}} anomalies and a {{LOT_AUDIT_SCORE}}-point audit score — a
 **{{LOT_VERDICT}}** verdict that exposes both the paste substitution and the
 final theft.
@@ -26,12 +26,14 @@ final theft.
 **Casino.** A {{CASINO_CASINOS}}-casino money-movement graph whose laundering
 closure reaches {{CASINO_LAUNDERING_CLOSURE_PCT}}, and a
 {{BENFORD_TRANSACTIONS}}-transaction ledger whose chi-square statistic (
-{{BENFORD_CHI_SQUARE}}) marks it **{{BENFORD_VERDICT}}** under Benford's law.
+{{BENFORD_CHI_SQUARE}}) exceeds the {{BENFORD_CRITICAL_VALUE}} critical value
+and so marks it **{{BENFORD_VERDICT}}** under Benford's law.
 
 **Orbital.** Of {{ORBITAL_TARGETS}} threatened cities, only
 {{ORBITAL_VISIBLE_TARGETS}} fall on the mirror's visible face; and honest beam
-physics shows the fantasy is bounded — delivering 1 MW/m2 at geostationary
-range takes a {{BEAM_MIN_MIRROR_DIAMETER_M}}-m mirror.
+physics shows the fantasy is bounded — delivering
+{{BEAM_REQUIRED_IRRADIANCE_MW}} MW/m2 at geostationary range takes a
+{{BEAM_MIN_MIRROR_DIAMETER_M}}-m mirror.
 
 All results are reproducible: every metric is computed at runtime from fixed
 canonical datasets, no random draws, no mock objects, and every mission outcome

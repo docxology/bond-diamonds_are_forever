@@ -28,3 +28,24 @@ of the ledger audit.
 
 [@bornwolf1999] — classical optics: diffraction limits and atmospheric
 propagation used in the beam physics.
+
+[@newcomb1881] — the first published statement of the leading-digit
+regularity, predating Benford by half a century.
+
+[@pearson1900] — the chi-square goodness-of-fit criterion used to score the
+ledger's digit distribution.
+
+[@nigrini2012] — applied forensic digit analysis; the auditing practice the
+ledger test models.
+
+[@tarjan1973] — enumeration of the elementary circuits of a directed graph,
+the classical form of the money-cycle problem.
+
+[@freeman1978] — network centrality, the sense in which the gross-flow casino
+is the network's hub.
+
+[@airy1835] — the Airy diffraction pattern, source of the 1.22 first-null
+constant used in the beam spot radius.
+
+[@beer1852] — the exponential absorption law behind the atmospheric
+transmittance term.

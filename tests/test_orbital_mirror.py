@@ -182,3 +182,28 @@ def test_math_radians_matrix() -> None:
     equator = to_cartesian(0.0, 0.0, 1.0)
     dot = sum(a * b for a, b in zip(north, equator))
     assert dot == pytest.approx(0.0, abs=1e-9)
+
+
+# ------------------------------------------------- validation & degenerate paths
+
+
+def test_satellite_rejects_out_of_range_longitude() -> None:
+    with pytest.raises(ValueError, match="lon_deg"):
+        Satellite(altitude_km=36000.0, lat_deg=0.0, lon_deg=181.0)
+
+
+def test_elevation_is_ninety_degrees_when_mirror_coincides_with_target() -> None:
+    """A zero-length relative vector has no direction — report straight overhead."""
+    target = GroundTarget("Zero Altitude", 10.0, 20.0)
+    grounded = Satellite(altitude_km=0.0, lat_deg=10.0, lon_deg=20.0)
+    assert slant_range_km(grounded, target) == pytest.approx(0.0, abs=1e-9)
+    assert elevation_angle_deg(grounded, target) == 90.0
+
+
+def test_beam_power_rejects_a_negative_aperture() -> None:
+    """A negative area would silently yield negative power downstream."""
+    with pytest.raises(ValueError, match="cannot be negative"):
+        beam_power_w(-1.0)
+    with pytest.raises(ValueError, match="cannot be negative"):
+        irradiance_at_target(-1.0, 0.5)
+    assert beam_power_w(0.0) == 0.0

@@ -142,7 +142,10 @@ def trace_origin(
     """Return the ordered actor path from the chain's origin to ``node``.
 
     The returned tuple starts at the origin (the first ``source``) and ends at
-    ``node`` inclusive.
+    ``node`` inclusive. Tracing the origin to itself is the single-element path
+    ``(origin,)``: the origin is never any handoff's ``target`` in an acyclic
+    chain, so without an explicit early return the scan would fall off the end
+    and hand back the entire chain.
 
     Raises:
         ValueError: if ``node`` is empty.
@@ -153,15 +156,16 @@ def trace_origin(
         raise ValueError("node must be a non-empty string")
     if not validated:
         raise ChainInconsistencyError("cannot trace origin of an empty chain")
-    actors = [validated[0].source, *(transfer.target for transfer in validated)]
-    if node not in actors:
+    origin = validated[0].source
+    if node == origin:
+        return (origin,)
+    targets = [transfer.target for transfer in validated]
+    if node not in targets:
         raise ChainInconsistencyError(f"node {node!r} is not part of the custody chain")
-    path: list[str] = [validated[0].source]
-    for transfer in validated:
-        path.append(transfer.target)
-        if transfer.target == node:
-            break
-    return tuple(path)
+    # Slice to the first arrival at `node` rather than scanning with a break:
+    # after the origin case is handled, `node` is guaranteed to be a target, so
+    # a break-loop would carry a fall-through arm that can never be reached.
+    return (origin, *targets[: targets.index(node) + 1])
 
 
 def canonical_transfers() -> tuple[CustodyTransfer, ...]:

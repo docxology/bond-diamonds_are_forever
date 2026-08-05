@@ -24,6 +24,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 __all__ = [
+    "CANONICAL_LOT_ID",
+    "CUTTING_LOSS_LIMIT",
+    "DENSITY_MAX_G_CM3",
+    "DENSITY_MIN_G_CM3",
     "DIAMOND_DENSITY_G_CM3",
     "AuditReport",
     "HandoffSample",
@@ -34,6 +38,14 @@ __all__ = [
 
 #: Nominal diamond density (g/cm3).
 DIAMOND_DENSITY_G_CM3 = 3.52
+#: Lower bound of the genuine-diamond density window (g/cm3).
+DENSITY_MIN_G_CM3 = 3.40
+#: Upper bound of the genuine-diamond density window (g/cm3).
+DENSITY_MAX_G_CM3 = 3.65
+#: Maximum legitimate fractional weight loss per handoff (cutting allowance).
+CUTTING_LOSS_LIMIT = 0.25
+#: The lot identifier the canonical CONFLICT STONE samples describe.
+CANONICAL_LOT_ID = "DF-71"
 #: Weight tolerance below which a delta is treated as exact.
 _EPSILON = 1e-9
 #: Anomaly severity weights.
@@ -97,9 +109,9 @@ class AuditReport:
 def audit_lot(
     samples: list[HandoffSample] | tuple[HandoffSample, ...],
     *,
-    cutting_loss_limit: float = 0.25,
-    density_min: float = 3.40,
-    density_max: float = 3.65,
+    cutting_loss_limit: float = CUTTING_LOSS_LIMIT,
+    density_min: float = DENSITY_MIN_G_CM3,
+    density_max: float = DENSITY_MAX_G_CM3,
 ) -> AuditReport:
     """Audit a lot's handoff samples and return a deterministic forensic report.
 
@@ -161,13 +173,16 @@ def audit_lot(
             )
         flags.append(flag)
 
+    # Every anomaly carries one of exactly three codes, so the final arm is an
+    # `else`, not a fourth `elif`: an `elif` would add a branch that can never
+    # be taken and would quietly score an unknown code as zero.
     score = 0
     for _index, code, _detail in anomalies:
         if code == "weight_gain":
             score += _WEIGHT_GAIN_SCORE
         elif code == "excessive_loss":
             score += _EXCESSIVE_LOSS_SCORE
-        elif code == "density_mismatch":
+        else:
             score += _DENSITY_MISMATCH_SCORE
     verdict = "clean" if not anomalies else ("suspicious" if len(anomalies) == 1 else "flagrant")
     return AuditReport(
@@ -189,16 +204,21 @@ def canonical_lot_samples() -> tuple[HandoffSample, ...]:
     """
     return (
         HandoffSample(
-            "DF-71", "sierra_leone_mine", "illicit_broker", 14.0, 14.0, note="wildcat handoff"
+            CANONICAL_LOT_ID,
+            "sierra_leone_mine",
+            "illicit_broker",
+            14.0,
+            14.0,
+            note="wildcat handoff",
         ),
         HandoffSample(
-            "DF-71", "illicit_broker", "nairobi_courier", 14.0, 11.2, note="rough cutting"
+            CANONICAL_LOT_ID, "illicit_broker", "nairobi_courier", 14.0, 11.2, note="rough cutting"
         ),
         HandoffSample(
-            "DF-71", "nairobi_courier", "london_dealer", 11.2, 11.2, note="doctored papers"
+            CANONICAL_LOT_ID, "nairobi_courier", "london_dealer", 11.2, 11.2, note="doctored papers"
         ),
         HandoffSample(
-            "DF-71",
+            CANONICAL_LOT_ID,
             "london_dealer",
             "amsterdam_contact",
             11.2,
@@ -207,6 +227,11 @@ def canonical_lot_samples() -> tuple[HandoffSample, ...]:
             note="paste swap",
         ),
         HandoffSample(
-            "DF-71", "amsterdam_contact", "las_vegas_fence", 11.2, 4.5, note="diverted consignment"
+            CANONICAL_LOT_ID,
+            "amsterdam_contact",
+            "las_vegas_fence",
+            11.2,
+            4.5,
+            note="diverted consignment",
         ),
     )

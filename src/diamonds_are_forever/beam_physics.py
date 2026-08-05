@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from diamonds_are_forever.orbital_mirror import SOLAR_CONSTANT_W_M2
 
 __all__ = [
+    "REQUIRED_STRIKE_IRRADIANCE_W_M2",
     "STEEL_VAPORIZATION_FLUENCE_J_M2",
     "BeamScenario",
     "atmospheric_transmittance",

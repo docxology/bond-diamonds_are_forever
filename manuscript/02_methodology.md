@@ -29,27 +29,35 @@ non-negative.
 Physical laundering of a lot is audited handoff-by-handoff against three
 forensic rules: a **weight gain** (impossible for a genuine lot) flags
 accounting fraud or substitution; a **loss beyond the legitimate cutting
-allowance** flags theft; and a **measured density outside the diamond window**
-(3.40-3.65 g/cm3 around nominal 3.52) flags a paste or simulant swap. Each
-violation contributes to an audit score and a lot verdict
-(`clean` / `suspicious` / `flagrant`).
+allowance** of {{LOT_CUTTING_ALLOWANCE_PCT}} per handoff flags theft; and a
+**measured density outside the diamond window**
+({{LOT_DENSITY_MIN}}-{{LOT_DENSITY_MAX}} g/cm3 around nominal
+{{LOT_DENSITY_NOMINAL}}) flags a paste or simulant swap. Each violation
+contributes to an audit score and a lot verdict
+(`clean` / `suspicious` / `flagrant`); a single anomaly reads as *suspicious*,
+two or more as *flagrant*.
 
 ## Casino money movement
 
 The Las Vegas network is a directed, weighted graph whose edges aggregate
 inter-casino transfers. The analysis computes gross flow, net positions, the
-network **hub** (greatest gross flow), the directed **money cycles**
-(laundering loops, via deterministic depth-first search), and the
-**laundering closure** — the fraction of flow that sits on a cycle.
+network **hub** (greatest gross flow — a degree-style centrality in the sense
+of [@freeman1978]), the directed **money cycles** (laundering loops, enumerated
+by a deterministic depth-first search over back edges, the classical circuit
+problem of [@tarjan1973]), and the **laundering closure** — the fraction of
+flow that sits on a cycle.
 
 ## Benford's-law ledger audit
 
 A laundering operation breaks the natural leading-digit distribution of its
 ledger (deposits cluster on round figures; the "legitimate" amounts rarely span
 a natural magnitude). This module compares the ledger's observed leading
-digits against Benford's law, `p(d) = log10(1 + 1/d)`, with a Pearson
-chi-square statistic against the df=8, alpha=0.05 critical value. Above the
-critical value the ledger is flagged **anomalous** — the laundering signal.
+digits against Benford's law, `p(d) = log10(1 + 1/d)` [@benford1938;
+@newcomb1881], with a Pearson chi-square statistic [@pearson1900] against the
+df={{BENFORD_DF}}, alpha={{BENFORD_ALPHA}} critical value of
+{{BENFORD_CRITICAL_VALUE}}. Above the critical value the ledger is flagged
+**anomalous** — the laundering signal that forensic digit analysis is built to
+surface [@nigrini2012].
 
 ## Orbital targeting geometry
 
@@ -61,9 +69,11 @@ centre), slant range, and elevation above the target's horizon.
 
 The targeting geometry solves *where* the beam can go; beam physics solves
 *what it delivers*. A diffraction-limited Airy spot `r = 1.22 * lambda * R / D`
-sets the focused size, Beer-Lambert `T = exp(-k * L)` sets the atmospheric
-transmittance, the power budget `P = S * (pi D^2 / 4) * T` sets the captured
-flux, and the dwell time `t = F / I` deposits a material's vaporization
-fluence. Inverting the chain yields the **minimum mirror diameter** that
-delivers a required irradiance at a given range — the honest bound on the
-weapon's fantasy.
+[@airy1835; @bornwolf1999] sets the focused size, Beer-Lambert
+`T = exp(-k * L)` [@beer1852] sets the atmospheric transmittance, the power
+budget `P = S * (pi D^2 / 4) * T` sets the captured flux, and the dwell time
+`t = F / I` deposits a material's vaporization fluence. Chaining these gives
+`I = S * T * D^4 / (4 * 1.22^2 * lambda^2 * R^2)`; inverting it for `D` yields
+the **minimum mirror diameter** that delivers a required irradiance at a given
+range — the honest bound on the weapon's fantasy, and the reason the result
+scales only as the fourth root of the demanded irradiance.

@@ -178,7 +178,14 @@ def elevation_angle_deg(satellite: Satellite, target: GroundTarget) -> float:
 
 
 def beam_power_w(mirror_area_m2: float) -> float:
-    """Solar power one mirror of ``mirror_area_m2`` captures at 1 AU (watts)."""
+    """Solar power one mirror of ``mirror_area_m2`` captures at 1 AU (watts).
+
+    Raises:
+        ValueError: if ``mirror_area_m2`` is negative (a negative aperture
+            would silently produce negative power downstream).
+    """
+    if mirror_area_m2 < 0:
+        raise ValueError("mirror_area_m2 cannot be negative")
     return SOLAR_CONSTANT_W_M2 * mirror_area_m2
 
 
@@ -188,6 +195,10 @@ def irradiance_at_target(mirror_area_m2: float, spot_radius_m: float) -> float:
     The mirror's full captured power is assumed focused onto one circular
     ``spot_radius_m`` target, so the delivered flux scales inversely with the
     square of the spot radius.
+
+    Raises:
+        ValueError: if ``spot_radius_m`` is not positive or the mirror area is
+            negative.
     """
     if spot_radius_m <= 0:
         raise ValueError("spot_radius_m must be positive")

@@ -23,14 +23,23 @@ special-agent mission models.
 - The corridor routing is a textbook shortest-path problem over expected cost;
   Dijkstra's algorithm [@dijkstra1959] bounds optimality over the same search
   space as the naive baseline.
-- The money-movement and Benford analyses draw on the laundering-detection
-  literature: circular-flow analysis and digital-auditing methods
-  [@levi2006], with first-digit testing rooted in Benford's empirical law
-  [@benford1938].
-- The beam physics uses the diffraction limit and atmospheric attenuation as
-  given in classical optics [@bornwolf1999]; it deliberately omits orbital
-  mechanics, beam-riding control, and target material science beyond a single
-  vaporization fluence, which are out of scope.
+- The money-movement analysis draws on the laundering-detection literature
+  [@levi2006]. Cycle detection is the elementary-circuit enumeration problem
+  [@tarjan1973] restricted to the small canonical graph, and the hub is a
+  gross-flow reading of degree centrality [@freeman1978].
+- The ledger audit rests on the leading-digit law observed by Newcomb
+  [@newcomb1881] and rediscovered by Benford [@benford1938], scored with
+  Pearson's chi-square criterion [@pearson1900]; its use as a fraud indicator
+  follows forensic-accounting practice [@nigrini2012]. The test is a screen,
+  not a proof: a failing ledger warrants investigation, it does not by itself
+  establish laundering.
+- The beam physics uses the Airy diffraction pattern [@airy1835] and the
+  exponential absorption law [@beer1852], both as given in classical optics
+  [@bornwolf1999]. It deliberately omits orbital mechanics, beam-riding
+  control, adaptive optics, thermal blooming, and target material science
+  beyond a single vaporization fluence, which are out of scope; the minimum
+  mirror diameter is therefore a lower bound on the real requirement, not an
+  estimate of it.
 
 The package also documents its own platform: CONFLICT STONE ({{CONFLICT_TITLE}})
 is one member of the PROJECT BOND suite, which shares the frozen BOND-API

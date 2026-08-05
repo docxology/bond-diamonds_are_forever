@@ -1,58 +1,57 @@
 # diamonds_are_forever — CONFLICT STONE · DIAMOND NET TODO
 
 Forward-only backlog for the BOND film package **Diamonds Are Forever (1971)**.
+For what the package *is*, see `README.md`; for how it is built, see
+`docs/architecture.md`. This file tracks only what is left.
 
-## What is built
+## Remaining work
 
-### Phase 2 — CONFLICT STONE (three concepts)
-
-| Module | Concept |
-|---|---|
-| `src/diamonds_are_forever/provenance_chain.py` | Conflict-diamond custody graph; break points; coverage; origin tracing |
-| `src/diamonds_are_forever/casino_network.py` | Directed weighted casino transfers; net/gross flow; hub; money cycles; laundering closure |
-| `src/diamonds_are_forever/orbital_mirror.py` | Orbital-mirror targeting: occultation, slant range, elevation, beam power |
-| `src/diamonds_are_forever/mission.py` | `MissionProvider` adapter (CONFLICT STONE) + gadget registration + input fingerprint |
-
-### Phase 4 — DIAMOND NET (deepening)
-
-| Module | Concept | Algorithm |
-|---|---|---|
-| `smuggling_routes.py` | Which corridor the goods travel | Expected-cost Dijkstra over seizure-risk corridors + fewest-hops BFS baseline → reduction |
-| `lot_forensics.py` | Physical laundering of the lot | Weight-gain / excess-loss / density-mismatch audit with a clean/suspicious/flagrant verdict |
-| `benford_audit.py` | Laundering signature of the ledger | Leading-digit Benford law + Pearson chi-square at df=8 / alpha=0.05 |
-| `beam_physics.py` | What the orbital weapon delivers | Diffraction spot, Beer-Lambert attenuation, power budget, vaporization, minimum mirror diameter |
-
-The mission adapter, `manuscript_variables.py`, and `figures.py` were deepened
-to consume the four new modules (7 figures, ~37 `{{TOKEN}}`s).
-
-## Verification evidence
-
-- `uv run pytest tests/ --cov=src --cov-fail-under=90` → passing, ~98% coverage
-  (floor 90%), 189 tests, 0 failures / 0 skipped / no mocks.
-- ruff `check` + `format` clean on `src/` and `scripts/`; mypy clean on
-  `src/` and `scripts/` (20 files).
-- Lineage `rg template[_]code_project` → zero literal hits in tracked source.
-- Deterministic: end-to-end `run_mission.py` is byte-stable; mission outcomes
-  carry a SHA-256 input fingerprint including the new canonical inputs.
+1. **Provenance-export CLI.** Write canonical inputs + the mission outcome to a
+   single JSON artifact under `output/data/`. This is the feed for the
+   bond-utilities integration point below, and the only reason it is not built
+   yet is that the consuming API is not fixed.
+2. **Satellite strike scheduling.** A dynamic pass over `beam_physics`:
+   allocate dwell time across the visible target set under an energy budget,
+   given that each strike needs `time_to_vaporize_s` at the delivered
+   irradiance. The physics is in place; the scheduler is not.
+3. **Spectroscopy channel for lot forensics.** `lot_forensics` currently
+   separates paste from diamond on density alone. A second, independent
+   channel (refractive index or thermal conductivity, both standard gemological
+   discriminators) would make the substitution finding two-instrument rather
+   than one.
+4. **Cargo-value sensitivity.** `route_reduction` is reported at a single cargo
+   value. The optimum route flips to the fewest-hops baseline as cargo value
+   falls toward zero — sweeping the crossover point would be a more honest
+   result than the single figure.
 
 ## Declared integration points
 
-- **bond-api protocol (FROZEN)**: implemented. `mission.py` adapts the frozen
-  `MissionProvider` contract; public shape unchanged across deepening.
-- **bond-utilities provenance**: not yet consumed. Integration point: delegate
-  outcome persistence to `bond_utilities.mission_io.record_provenance_outcome`
-  once bond-utilities ships. Until then the package keeps its own
-  `mission_input_hash` (SHA-256) — no rework needed to bind.
-- **orchestrator discovery**: `mission.py` exposes `MissionProvider` at module
-  top level under the stable name; the orchestrator discovers it by slug
+- **bond-api protocol (FROZEN)** — implemented. `mission.py` adapts the frozen
+  `MissionProvider` contract; public shape unchanged across the deepening
+  phase. No further work.
+- **bond-utilities provenance** — *not yet consumed*. When bond-utilities
+  ships, delegate outcome persistence to
+  `bond_utilities.mission_io.record_provenance_outcome`. Until then the package
+  keeps its own SHA-256 `mission_input_hash()`; binding later needs no rework,
+  only a call-site change.
+- **orchestrator discovery** — done. `mission.py` exposes `MissionProvider` at
+  module top level under the stable name; the orchestrator resolves the slug
   `diamonds_are_forever` via `bond_api.discovery`.
 
-## Improvement ladder
+## Not planned
 
-1. Add a provenance-export CLI that writes canonical inputs + outcome to JSON
-   (feeds the bond-utilities integration point).
-2. Add a dynamic satellite scheduling pass over the new beam physics (strike
-   energy budget across the visible target set).
-3. Widen the forensic module with a paste-vs-diamond spectroscopy channel.
-4. Refresh `docs/_generated/COUNTS.md` equivalents only if this tree is ever
-   wired back into the monorepo pipeline (currently standalone/local-only).
+- Re-wiring this tree into the monorepo pipeline. It is standalone and
+  local-only by design; `docs/_generated/` equivalents are out of scope unless
+  that changes.
+- Orbital mechanics, beam-riding control, adaptive optics, or thermal blooming
+  in `beam_physics`. The scope note in
+  `manuscript/07_scope_and_related_work.md` states these omissions explicitly,
+  and the minimum mirror diameter is presented as a lower bound because of
+  them. Adding one would mean revising that claim.
+
+## Verification
+
+Gates are defined in `AGENTS.md` and `domain_profile.yaml`; run them rather
+than trusting a number recorded here. The standing bar: `pytest` with
+`--cov-fail-under=90` on `src/`, ruff `check` + `format --check`, mypy, all
+clean, zero mocks, zero skips, and a clean `git status` after committing.

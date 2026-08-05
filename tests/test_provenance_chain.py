@@ -151,3 +151,35 @@ def test_trace_origin_rejects_unknown_node() -> None:
 def test_trace_origin_rejects_empty_chain() -> None:
     with pytest.raises(ChainInconsistencyError):
         trace_origin([], "a")
+
+
+def test_validate_rejects_a_non_sequence() -> None:
+    """A bare CustodyTransfer (not wrapped in a sequence) must fail loudly."""
+    with pytest.raises(TypeError, match="must be a sequence"):
+        validate_transfers(CustodyTransfer("a", "b", recorded=True))  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="must be a sequence"):
+        break_points("not-a-chain")  # type: ignore[arg-type]
+
+
+def test_trace_origin_to_the_origin_is_a_single_element_path() -> None:
+    """Regression: the scan used to fall through and return the whole chain.
+
+    The origin is never any handoff's ``target`` in an acyclic chain, so the
+    break condition never fires for it. The bug was silent — it returned a
+    well-formed path that simply answered a different question.
+    """
+    chain = canonical_transfers()
+    origin = chain[0].source
+    assert trace_origin(chain, origin) == (origin,)
+    # The far end still returns the full route, so the fix is not a blanket
+    # short-circuit.
+    assert trace_origin(chain, chain[-1].target)[0] == origin
+    assert trace_origin(chain, chain[-1].target)[-1] == chain[-1].target
+    assert len(trace_origin(chain, chain[-1].target)) == len(chain) + 1
+
+
+def test_trace_origin_stops_at_an_intermediate_node() -> None:
+    chain = canonical_transfers()
+    midpoint = chain[1].target
+    path = trace_origin(chain, midpoint)
+    assert path == (chain[0].source, chain[0].target, midpoint)

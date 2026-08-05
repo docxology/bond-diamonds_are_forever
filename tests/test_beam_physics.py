@@ -6,6 +6,7 @@ import math
 
 import pytest
 
+from diamonds_are_forever import beam_physics as bp
 from diamonds_are_forever.beam_physics import (
     REQUIRED_STRIKE_IRRADIANCE_W_M2,
     BeamScenario,
@@ -191,3 +192,53 @@ def test_beam_scenario_rejects_bad_values() -> None:
 def test_beam_scenario_rejects_non_number() -> None:
     with pytest.raises(TypeError):
         BeamScenario(mirror_diameter_m="wide")  # type: ignore[arg-type]
+
+
+# ------------------------------------------------- scenario validation branches
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("mirror_diameter_m", 0.0),
+        ("mirror_diameter_m", -1.0),
+        ("wavelength_m", 0.0),
+        ("wavelength_m", -5.0e-7),
+        ("slant_range_km", 0.0),
+        ("slant_range_km", -10.0),
+        ("attenuation_per_km", -0.01),
+        ("atmosphere_path_km", -1.0),
+    ],
+)
+def test_scenario_rejects_out_of_range_fields(field: str, value: float) -> None:
+    with pytest.raises(ValueError):
+        bp.BeamScenario(**{field: value})
+
+
+def test_minimum_mirror_diameter_rejects_a_fully_opaque_atmosphere() -> None:
+    """A transmittance that underflows to zero must fail loudly, not divide by it."""
+    transmittance = bp.atmospheric_transmittance(1000.0, 1000.0)
+    assert transmittance == 0.0
+    with pytest.raises(ValueError, match="cannot reach the target"):
+        bp.minimum_mirror_diameter_m(
+            5.0e-7,
+            3.6e7,
+            bp.REQUIRED_STRIKE_IRRADIANCE_W_M2,
+            attenuation_per_km=1000.0,
+            atmosphere_path_km=1000.0,
+        )
+
+
+def test_required_strike_irradiance_is_exported_and_used_by_beam_metrics() -> None:
+    """The strike requirement is public API — figures and the manuscript read it."""
+    assert "REQUIRED_STRIKE_IRRADIANCE_W_M2" in bp.__all__
+    scenario = bp.canonical_beam_scenario()
+    metrics = bp.beam_metrics(scenario)
+    delivered_at_minimum = bp.delivered_irradiance_w_m2(
+        metrics["min_mirror_diameter_m"],
+        scenario.wavelength_m,
+        scenario.slant_range_km * 1000.0,
+        scenario.attenuation_per_km,
+        scenario.atmosphere_path_km,
+    )
+    assert delivered_at_minimum == pytest.approx(bp.REQUIRED_STRIKE_IRRADIANCE_W_M2, rel=1e-9)

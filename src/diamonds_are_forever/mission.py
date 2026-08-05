@@ -55,6 +55,8 @@ PACKAGE_VERSION = "0.1.0"
 CODENAME = "CONFLICT STONE"
 #: Deterministic RNG seed (0 disables randomness; we have none anyway).
 SEED = 7
+#: Strike requirement in MW/m^2, derived from the beam core (never restated).
+_REQUIRED_STRIKE_MW = beam_physics.REQUIRED_STRIKE_IRRADIANCE_W_M2 / 1.0e6
 
 
 def mission_input_hash() -> str:
@@ -406,7 +408,10 @@ class MissionProvider:
                 f"weight and density tell the physical story: {forensics['anomalies']} lot anomalies, verdict {forensics['verdict']}",
                 f"circular money movement is the laundering signature: closure of {casino['laundering_closure']:.0%} over {casino['casinos']} casinos",
                 f"the ledger fails Benford's law: chi-square {benford['chi_square']} against a {benford['critical_value']} critical value",
-                f"beam physics bounds the fantasy: a {beam['min_mirror_diameter_m']:.1f} m mirror delivers 1 MW/m2 at geostationary range",
+                (
+                    f"beam physics bounds the fantasy: a {beam['min_mirror_diameter_m']:.1f} m "
+                    f"mirror delivers {_REQUIRED_STRIKE_MW:g} MW/m2 at geostationary range"
+                ),
                 f"an orbital mirror can only strike the visible face: {orbital['visible_targets']} of {orbital['targets']} targets in-beam",
                 "the contract is frozen; films must not change it",
             ),
