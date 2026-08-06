@@ -4,6 +4,12 @@ Each generator writes a PNG under ``output/figures/`` using ``matplotlib`` with
 the non-interactive ``Agg`` backend. The figures are purely derived from the
 pure-domain canonical datasets and are therefore byte-reproducible across runs.
 
+Each figure also exposes a ``*_figure_data()`` accessor returning the plotted
+series derived from live core data; the test suite asserts those series equal
+the authoritative pure-core values, so a figure that plotted the wrong data
+(not just one that failed to render) is caught. ``test_figures.py`` additionally
+asserts byte-identity across two renders.
+
 Figures
 -------
 - ``provenance_chain.png`` — documented vs. break-point handoffs along the chain.
@@ -13,6 +19,7 @@ Figures
 - ``benford_ledger.png`` — observed vs. Benford-expected leading digits.
 - ``orbital_visibility.png`` — slant-range / visibility summary per target.
 - ``beam_physics.png`` — delivered irradiance vs. mirror diameter.
+- ``cargo_sweep.png`` — route reduction vs. cargo value.
 """
 
 from __future__ import annotations
@@ -22,6 +29,8 @@ from itertools import pairwise
 from pathlib import Path
 
 os.environ.setdefault("MPLBACKEND", "Agg")
+
+from typing import cast
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -37,9 +46,12 @@ from diamonds_are_forever import (
 )
 
 __all__ = [
+    "benford_figure_data",
+    "cargo_sweep_figure_data",
     "generate_all_figures",
     "generate_beam_figure",
     "generate_benford_figure",
+    "generate_cargo_sweep_figure",
     "generate_casino_figure",
     "generate_lot_figure",
     "generate_orbital_figure",
@@ -140,6 +152,46 @@ def generate_casino_figure(output_path: str | Path) -> Path:
     return _save(figure, Path(output_path))
 
 
+def benford_figure_data() -> dict[str, object]:
+    """The three series the Benford figure plots, derived from live core data.
+
+    ``control_freq`` and ``observed`` are the normalised digit frequencies of
+    the legitimate baseline (negative control) and the full ledger; ``expected``
+    is the Benford expectation; ``control_chi``/``full_chi`` are the chi-square
+    statistics. Exposed so a test can assert the figure's data equals the
+    authoritative core rather than merely that a PNG rendered.
+    """
+    full = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
+    control = benford_audit.benford_report(benford_audit.legitimate_ledger_amounts())
+    digits = list(range(1, 10))
+    control_freq = [float(control.distribution[str(d)]) / control.transactions for d in digits]
+    observed = [float(full.distribution[str(d)]) / full.transactions for d in digits]
+    expected = [benford_audit.expected_benford_frequency(d) for d in digits]
+    return {
+        "digits": digits,
+        "control_freq": control_freq,
+        "observed": observed,
+        "expected": expected,
+        "control_chi": control.chi_square,
+        "full_chi": full.chi_square,
+        "control_conforms": control.conforms,
+        "full_conforms": full.conforms,
+    }
+
+
+_BENFORD_KEYS = ("digits", "control_freq", "observed", "expected", "control_chi", "full_chi")
+
+
+def _benford_plot_data() -> tuple[list[int], list[float], list[float], list[float]]:
+    """Typed extraction of the plotted series from :func:`benford_figure_data`."""
+    data = benford_figure_data()
+    digits = cast(list[int], data["digits"])
+    control_freq = cast(list[float], data["control_freq"])
+    observed = cast(list[float], data["observed"])
+    expected = cast(list[float], data["expected"])
+    return digits, control_freq, observed, expected
+
+
 def generate_benford_figure(output_path: str | Path) -> Path:
     """The matched control pair against the Benford expectation.
 
@@ -148,26 +200,24 @@ def generate_benford_figure(output_path: str | Path) -> Path:
     flagged ledger is what makes the flag readable — the baseline tracks the
     expectation, the full ledger does not.
     """
-    full = benford_audit.benford_report(benford_audit.canonical_ledger_amounts())
-    control = benford_audit.benford_report(benford_audit.legitimate_ledger_amounts())
-    digits = list(range(1, 10))
-    control_freq = [float(control.distribution[str(d)]) / control.transactions for d in digits]
-    observed = [float(full.distribution[str(d)]) / full.transactions for d in digits]
-    expected = [benford_audit.expected_benford_frequency(d) for d in digits]
+    data = benford_figure_data()
+    digits, control_freq, observed, expected = _benford_plot_data()
+    control_chi = cast(float, data["control_chi"])
+    full_chi = cast(float, data["full_chi"])
     figure, axis = plt.subplots(figsize=(8, 4))
     axis.bar(
         [d - 0.27 for d in digits],
         control_freq,
         width=0.27,
         color="#0369a1",
-        label=f"legitimate baseline (chi2={control.chi_square:.2f}, conforms)",
+        label=f"legitimate baseline (chi2={control_chi:.2f}, conforms)",
     )
     axis.bar(
         digits,
         observed,
         width=0.27,
         color="#0f766e",
-        label=f"full ledger (chi2={full.chi_square:.2f}, anomalous)",
+        label=f"full ledger (chi2={full_chi:.2f}, anomalous)",
     )
     axis.bar([d + 0.27 for d in digits], expected, width=0.27, color="#b91c1c", label="Benford")
     axis.set_xticks(digits)
@@ -193,6 +243,46 @@ def generate_orbital_figure(output_path: str | Path) -> Path:
     axis.set_xticklabels(names, rotation=45, ha="right", fontsize=9)
     axis.set_ylabel("slant range (km)")
     axis.set_title("CONFLICT STONE — orbital-mirror targeting (green = in beam)")
+    figure.tight_layout()
+    return _save(figure, Path(output_path))
+
+
+def cargo_sweep_figure_data() -> dict[str, object]:
+    """The cargo-value sweep the ``cargo_sweep.png`` figure plots.
+
+    Returns the cargo values, the corresponding reductions, and the optimal
+    route strings, all recomputed live from :func:`smuggling_routes.cargo_reduction_sweep`.
+    """
+    points = smuggling_routes.cargo_reduction_sweep(smuggling_routes.canonical_cargo_sweep_values())
+    return {
+        "cargo_values": [point.cargo_value_m for point in points],
+        "reductions": [point.reduction for point in points],
+        "routes": [" -> ".join(point.route) for point in points],
+    }
+
+
+def generate_cargo_sweep_figure(output_path: str | Path) -> Path:
+    """Route reduction vs. cargo value, marking the canonical cargo.
+
+    The optimum is cargo-dependent (cheap corridors at low value, low-seizure
+    corridors at high value), so the reduction curve is *not* monotonic and the
+    figure plots it as measured. The canonical cargo value is marked.
+    """
+    data = cargo_sweep_figure_data()
+    cargo_values = cast(list[float], data["cargo_values"])
+    reductions = cast(list[float], data["reductions"])
+    canonical = smuggling_routes.canonical_cargo_value_m()
+    figure, axis = plt.subplots(figsize=(8, 4))
+    axis.plot(cargo_values, reductions, marker="o", color="#0f766e")
+    canonical_reduction = reductions[cargo_values.index(canonical)]
+    axis.axvline(
+        canonical, color="#b91c1c", linestyle=":", label=f"canonical {canonical:.1f} M USD"
+    )
+    axis.axhline(canonical_reduction, color="#334155", linestyle="--")
+    axis.set_xlabel("cargo value (M USD)")
+    axis.set_ylabel("expected-cost reduction vs. baseline")
+    axis.set_title("CONFLICT STONE — route reduction vs. cargo value")
+    axis.legend(loc="best", fontsize=8)
     figure.tight_layout()
     return _save(figure, Path(output_path))
 
@@ -247,4 +337,5 @@ def generate_all_figures(output_dir: str | Path) -> tuple[Path, ...]:
         generate_benford_figure(output / "benford_ledger.png"),
         generate_orbital_figure(output / "orbital_visibility.png"),
         generate_beam_figure(output / "beam_physics.png"),
+        generate_cargo_sweep_figure(output / "cargo_sweep.png"),
     )

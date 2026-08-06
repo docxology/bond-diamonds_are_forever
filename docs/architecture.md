@@ -68,7 +68,7 @@ manuscript can cite them through tokens instead of restating them.
 A directed weighted money graph keyed on `(source, target)`; repeated wires
 accumulate onto one edge, as a real ledger must. Surfaces inflow/outflow, net
 position, gross flow, the `hub` (greatest gross flow, ties to the
-alphabetically first), `find_money_cycles` (DFS back-edge enumeration), and
+alphabetically first), `find_money_cycles` (complete elementary-circuit enumeration, Johnson 1975), and
 `laundering_closure` — the share of total flow sitting on any cycle.
 
 ### `benford_audit.py`

@@ -17,6 +17,17 @@ PHASE_EXPECT = {
     "debrief.py": ("Outcome success: True", "Lessons:"),
 }
 
+_FIGURE_NAMES = (
+    "provenance_chain.png",
+    "smuggling_route.png",
+    "lot_forensics.png",
+    "casino_network.png",
+    "benford_ledger.png",
+    "orbital_visibility.png",
+    "beam_physics.png",
+    "cargo_sweep.png",
+)
+
 
 def _run(script: str, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -63,15 +74,7 @@ def test_generate_figures_writes_pngs() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    for name in (
-        "provenance_chain.png",
-        "smuggling_route.png",
-        "lot_forensics.png",
-        "casino_network.png",
-        "benford_ledger.png",
-        "orbital_visibility.png",
-        "beam_physics.png",
-    ):
+    for name in _FIGURE_NAMES:
         assert (ROOT / "output" / "figures" / name).is_file()
 
 

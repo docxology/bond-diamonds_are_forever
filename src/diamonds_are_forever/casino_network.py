@@ -5,13 +5,16 @@ Las Vegas casino ecosystem. Money moves casino-to-casino along a directed,
 weighted multigraph; analysis surfaces gross flow, net positions, circular
 (laundering) paths, and the network's hub casino.
 
+Money cycles are enumerated *completely* — every elementary circuit, once —
+with Johnson's 1975 algorithm rather than a back-edge DFS, so a graph with
+overlapping circuits cannot silently under-report its own laundering loops.
+
 Everything is deterministic: amounts are exact ``float`` values accumulated in
 insertion order, iteration follows insertion order, and there is no RNG.
 """
 
 from __future__ import annotations
 
-from collections import defaultdict
 from itertools import pairwise
 
 __all__ = [
@@ -96,42 +99,30 @@ class CasinoNetwork:
         return best
 
     def find_money_cycles(self) -> tuple[tuple[str, ...], ...]:
-        """All distinct directed money cycles (laundering loops).
+        """Every distinct directed money cycle (laundering loop), exactly once.
 
-        A cycle is reported once as ``(n0, n1, ..., n0)``, the nodes visited in
-        DFS discovery order at the point the back edge is found.
+        This is a *complete* elementary-circuit enumeration (Johnson 1975,
+        following the classical statement of Tarjan 1973): each simple directed
+        cycle is reported exactly once, never as a rotation or reverse of
+        itself. Completeness matters because closures and cycle counts are only
+        well-defined when the enumerator cannot drop an overlapping circuit — a
+        graph where one circuit re-enters an already-traversed node otherwise
+        under-reports its own topology. The canonical network (three
+        edge-disjoint loops) yields exactly three circuits by either rule; the
+        guarantee this method adds is that *any* graph is enumerated fully.
 
-        No de-duplication pass is needed, and deliberately none is performed:
-        edges are unique by construction (``_edges`` is keyed on
-        ``(source, target)``, so repeated wires accumulate into one edge), and
-        each node is expanded exactly once, so every back edge is traversed
-        exactly once and yields exactly one cycle. A ``if cycle not in seen``
-        guard here would be a branch that can never reject.
+        Cycles are reported as ``(n0, n1, ..., n0)`` in Johnson's canonical
+        order — each starts at the least node in the cycle and follows the
+        graph's sorted adjacency, so the result is deterministic.
         """
-        adjacency: dict[str, list[str]] = defaultdict(list)
-        for source, target in self._edges:
-            adjacency[source].append(target)
         nodes = self.casinos()
-        state: dict[str, int] = {node: 0 for node in nodes}  # 0 unvisited, 1 in-stack, 2 done
-        stack: list[str] = []
-        cycles: list[tuple[str, ...]] = []
-
-        def visit(node: str) -> None:
-            state[node] = 1
-            stack.append(node)
-            for nxt in adjacency.get(node, ()):
-                if state.get(nxt, 0) == 1:
-                    start = stack.index(nxt)
-                    cycles.append(tuple(stack[start:] + [nxt]))
-                elif state.get(nxt, 0) == 0:
-                    visit(nxt)
-            stack.pop()
-            state[node] = 2
-
-        for node in nodes:
-            if state[node] == 0:
-                visit(node)
-        return tuple(cycles)
+        index = {node: i for i, node in enumerate(nodes)}
+        adjacency: list[list[int]] = [[] for _ in range(len(nodes))]
+        for source, target in self._edges:
+            adjacency[index[source]].append(index[target])
+        for successors in adjacency:
+            successors.sort()
+        return _johnson_circuits(adjacency, nodes)
 
     def laundering_closure(self) -> float:
         """Fraction of total flow that sits on a money cycle (0.0 if no flow).
@@ -152,6 +143,120 @@ class CasinoNetwork:
             if (source, target) in cycle_edges
         )
         return on_cycle / total
+
+
+def _strongly_connected_component_starting_at(
+    adjacency: list[list[int]], active: set[int], start: int
+) -> set[int]:
+    """The strongly connected component of ``start`` in ``adjacency`` restricted to ``active``.
+
+    ``active`` is the vertex set of the induced subgraph being considered;
+    ``start`` is the minimum-index vertex of that subgraph. The component is
+    the intersection of the vertices reachable from ``start`` with the vertices
+    that can reach ``start``. The graphs involved here are tiny (the canonical
+    network has seven nodes), so a straightforward reachability pair is
+    adequate; no asymptotics are contended.
+    """
+    forward: set[int] = set()
+    stack = [start]
+    while stack:
+        vertex = stack.pop()
+        if vertex in forward:
+            continue
+        forward.add(vertex)
+        for successor in adjacency[vertex]:
+            if successor in active and successor not in forward:
+                stack.append(successor)
+
+    backward: set[int] = set()
+    stack = [start]
+    while stack:
+        vertex = stack.pop()
+        if vertex in backward:
+            continue
+        backward.add(vertex)
+        for predecessor in active:
+            if predecessor not in backward and vertex in adjacency[predecessor]:
+                stack.append(predecessor)
+    return forward & backward
+
+
+def _johnson_circuits(
+    adjacency: list[list[int]], names: tuple[str, ...]
+) -> tuple[tuple[str, ...], ...]:
+    """Enumerate every elementary circuit of ``adjacency`` exactly once.
+
+    Johnson's (1975) algorithm: for each vertex ``start`` in increasing index
+    order, restrict to the subgraph induced by ``start..n-1`` and to ``start``'s
+    strongly connected component within it, then run the blocked DFS that
+    reports every circuit whose least vertex is ``start``. Each circuit is thus
+    found exactly once, in a canonical orientation starting at its least
+    vertex. Returns the circuits as tuples of the node names from ``names``.
+
+    Determinism: vertices are ordered by ``names`` (the sorted casino list), and
+    adjacency successor lists are sorted, so traversal order is fixed.
+    """
+    circuit_count = len(adjacency)
+    circuits: list[tuple[str, ...]] = []
+
+    for start in range(circuit_count):
+        active = set(range(start, circuit_count))
+        component = _strongly_connected_component_starting_at(adjacency, active, start)
+        # `component` always contains `start` itself (it is reachable to and
+        # from itself trivially), so there is no empty-component branch to guard.
+        _solve_start(adjacency, component, start, names, circuits)
+
+    return tuple(circuits)
+
+
+def _solve_start(
+    adjacency: list[list[int]],
+    component: set[int],
+    start: int,
+    names: tuple[str, ...],
+    circuits: list[tuple[str, ...]],
+) -> None:
+    """Run Johnson's blocked search for one least vertex ``start``.
+
+    ``component`` is ``start``'s strongly connected component in the subgraph
+    induced by ``start..n-1``. The closures below capture only the parameters
+    of this function (never a loop variable), so each invocation owns its own
+    ``blocked`` / ``banned`` / ``stack`` state.
+    """
+    blocked: dict[int, bool] = {vertex: False for vertex in component}
+    banned: dict[int, set[int]] = {vertex: set() for vertex in component}
+    stack: list[int] = []
+
+    def unblock(vertex: int) -> None:
+        blocked[vertex] = False
+        for successor in list(banned[vertex]):
+            banned[vertex].discard(successor)
+            if blocked[successor]:
+                unblock(successor)
+
+    def circuit(vertex: int) -> bool:
+        found_any = False
+        stack.append(vertex)
+        blocked[vertex] = True
+        for successor in adjacency[vertex]:
+            if successor not in component:
+                continue
+            if successor == start:
+                circuits.append(tuple(names[i] for i in stack) + (names[start],))
+                found_any = True
+            elif not blocked[successor]:
+                if circuit(successor):
+                    found_any = True
+        if found_any:
+            unblock(vertex)
+        else:
+            for successor in adjacency[vertex]:
+                if successor in component:
+                    banned[successor].add(vertex)
+        stack.pop()
+        return found_any
+
+    circuit(start)
 
 
 def compute_hub(network: CasinoNetwork) -> str:

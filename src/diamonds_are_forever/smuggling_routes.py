@@ -14,6 +14,14 @@ returns the route, its expected cost, and the survival probability
 fewest-hops BFS baseline in the *same* graph, so the optimality gap
 (:func:`route_reduction`) is always non-negative.
 
+The optimal route is *cargo-dependent*: at low cargo value the transport cost
+dominates and the optimum favours cheap corridors; as cargo value grows the
+seizure-probability term dominates and low-seizure corridors (even over more
+hops) win. :func:`cargo_reduction_sweep` maps that dependency, and it is *not*
+monotonic — the reduction can fall and then rise as the optimal route switches
+corridors — so no single figure can claim a monotone trend. It is reported as
+measured.
+
 Deterministic: heapq tie-breaks on an insertion counter, adjacency lists are
 sorted, and there is no RNG.
 """
@@ -22,15 +30,19 @@ from __future__ import annotations
 
 import heapq
 from collections import deque
+from collections.abc import Sequence
 from dataclasses import dataclass
 from itertools import pairwise
 
 __all__ = [
+    "CargoSweepPoint",
     "Corridor",
     "RouteError",
     "SmugglingNetwork",
+    "canonical_cargo_sweep_values",
     "canonical_cargo_value_m",
     "canonical_corridors",
+    "cargo_reduction_sweep",
     "cost_of_path",
     "expected_cost",
     "least_risk_route",
@@ -68,6 +80,15 @@ class Corridor:
             raise ValueError("Corridor.cost_m cannot be negative")
         if not 0.0 <= self.seizure_probability <= 1.0:
             raise ValueError("Corridor.seizure_probability must be within [0, 1]")
+
+
+@dataclass(frozen=True)
+class CargoSweepPoint:
+    """One point of the cargo-value sensitivity sweep: reduction at a cargo value."""
+
+    cargo_value_m: float
+    reduction: float
+    route: tuple[str, ...]
 
 
 class SmugglingNetwork:
@@ -231,6 +252,38 @@ def route_reduction(naive_cost_m: float, optimal_cost_m: float) -> float:
 def canonical_cargo_value_m() -> float:
     """The canonical CONFLICT STONE cargo value in millions of US dollars."""
     return 5.0
+
+
+def canonical_cargo_sweep_values() -> tuple[float, ...]:
+    """The cargo values (M USD) swept by :func:`cargo_reduction_sweep`.
+
+    Spans starvation (0) through the canonical cargo (5) up to a consignment
+    where seizure risk dominates the routing decision.
+    """
+    return (0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0)
+
+
+def cargo_reduction_sweep(cargo_values_m: Sequence[float]) -> tuple[CargoSweepPoint, ...]:
+    """Map ``route_reduction`` over a range of cargo values on the canonical network.
+
+    The expected-cost optimum is cargo-dependent: cheap corridors win at low
+    cargo value, low-seizure corridors at high cargo value, so the reduction
+    curve is *not* monotonic and no monotone trend should be asserted across a
+    route switch. Each point reports the cargo value, the reduction, and the
+    optimal route, so a reader (and a test) can see the switch rather than
+    assume it away.
+    """
+    network = canonical_corridors()
+    origin, destination = "sierra_leone", "las_vegas"
+    points: list[CargoSweepPoint] = []
+    for value in cargo_values_m:
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or value < 0:
+            raise ValueError("cargo_values_m entries must be non-negative numbers")
+        route, _cost, _survival = least_risk_route(network, origin, destination, float(value))
+        naive = naive_hops_route(network, origin, destination)
+        naive_cost = cost_of_path(network, naive, float(value))
+        points.append(CargoSweepPoint(float(value), route_reduction(naive_cost, _cost), route))
+    return tuple(points)
 
 
 def canonical_corridors() -> SmugglingNetwork:

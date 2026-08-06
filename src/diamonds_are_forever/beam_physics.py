@@ -14,6 +14,12 @@ attenuation on the way down. The model chains four classic laws:
 * **vaporization** — a strike needs to deliver a material's vaporization
   fluence, so ``t = F / I`` is the dwell time.
 
+This model assumes the *full* captured power lands inside the first-null disk;
+real Airy diffraction puts about 83.8 % of the power inside the first null, so
+the delivered irradiance is about 1.19× optimistic and the minimum diameter
+about 4.6 % small. Along with the other omissions in ``07_scope_and_related_work.md``,
+this keeps the result a *lower bound* on the real requirement.
+
 :func:`minimum_mirror_diameter_m` inverts the chain to the mirror size that
 delivers a required irradiance at a given range — the honest headline of how
 big the weapon must actually be. All values are deterministic; no RNG.

@@ -2,65 +2,75 @@
 # Registers the sourced, deterministic numeric claims the manuscript relies on.
 # Each claim traces to a live computation in the pure domain core, never a
 # hand-stated number.
-
+#
+# Every `source` is a Python expression evaluated in a namespace that exposes
+# the seven pure modules by name plus their public functions/constants (merged),
+# and must evaluate to a value directly comparable with `value`:
+#   - an int for a count (the expression evaluates to that int);
+#   - a float for a metric (compared with pytest.approx);
+#   - a str for a name/route/verdict.
+# `tests/test_claims.py` iterates this whole file (asserting it contains all 21
+# claim ids) and recomputes every row from its `source`, so a claim added
+# without a matching executable source — or a source that drifts from the code —
+# fails the suite rather than silently decaying.
 claims:
   - id: provenance.transfers
     value: 5
-    source: "provenance_chain.canonical_transfers()"
+    source: "len(provenance_chain.canonical_transfers())"
   - id: provenance.breakpoints
     value: 2
-    source: "provenance_chain.break_points(canonical_transfers())"
+    source: "len(provenance_chain.break_points(provenance_chain.canonical_transfers()))"
   - id: provenance.coverage
     value: 0.6
-    source: "provenance_chain.provenance_coverage(canonical_transfers())"
+    source: "provenance_chain.provenance_coverage(provenance_chain.canonical_transfers())"
   - id: smuggling.corridors
     value: 10
-    source: "smuggling_routes.canonical_corridors().corridors()"
+    source: "len(smuggling_routes.canonical_corridors().corridors())"
   - id: smuggling.route
     value: "sierra_leone -> nairobi -> paris -> amsterdam -> las_vegas"
-    source: "smuggling_routes.least_risk_route(...) with cargo_value 5.0"
+    source: "str.join(' -> ', smuggling_routes.least_risk_route(smuggling_routes.canonical_corridors(), 'sierra_leone', 'las_vegas', smuggling_routes.canonical_cargo_value_m())[0])"
   - id: smuggling.expected_cost_m
     value: 9.35
-    source: "smuggling_routes.least_risk_route(...)"
+    source: "smuggling_routes.least_risk_route(smuggling_routes.canonical_corridors(), 'sierra_leone', 'las_vegas', smuggling_routes.canonical_cargo_value_m())[1]"
   - id: smuggling.survival
     value: 0.3444
-    source: "smuggling_routes.least_risk_route(...)"
+    source: "smuggling_routes.least_risk_route(smuggling_routes.canonical_corridors(), 'sierra_leone', 'las_vegas', smuggling_routes.canonical_cargo_value_m())[2]"
   - id: smuggling.reduction
     value: 0.1614
-    source: "smuggling_routes.route_reduction(naive_cost, route_cost)"
+    source: "smuggling_routes.route_reduction(smuggling_routes.cost_of_path(smuggling_routes.canonical_corridors(), smuggling_routes.naive_hops_route(smuggling_routes.canonical_corridors(), 'sierra_leone', 'las_vegas'), smuggling_routes.canonical_cargo_value_m()), smuggling_routes.least_risk_route(smuggling_routes.canonical_corridors(), 'sierra_leone', 'las_vegas', smuggling_routes.canonical_cargo_value_m())[1])"
   - id: forensics.anomalies
     value: 2
-    source: "lot_forensics.audit_lot(canonical_lot_samples()).anomalies"
+    source: "len(lot_forensics.audit_lot(lot_forensics.canonical_lot_samples()).anomalies)"
   - id: forensics.verdict
     value: "flagrant"
-    source: "lot_forensics.audit_lot(canonical_lot_samples()).verdict"
+    source: "lot_forensics.audit_lot(lot_forensics.canonical_lot_samples()).verdict"
   - id: casino.casinos
     value: 7
-    source: "casino_network.canonical_network().casinos()"
+    source: "len(casino_network.canonical_network().casinos())"
   - id: casino.laundering_closure
     value: 0.7742
     source: "casino_network.canonical_network().laundering_closure()"
   - id: benford.transactions
     value: 141
-    source: "benford_audit.benford_report(canonical_ledger_amounts()).transactions"
+    source: "benford_audit.benford_report(benford_audit.canonical_ledger_amounts()).transactions"
   - id: benford.chi_square
     value: 35.805
-    source: "benford_audit.benford_report(canonical_ledger_amounts()).chi_square"
+    source: "benford_audit.benford_report(benford_audit.canonical_ledger_amounts()).chi_square"
   - id: benford.verdict
     value: "anomalous"
-    source: "benford_audit.benford_report(canonical_ledger_amounts()).conforms == False"
+    source: "('conforms' if benford_audit.benford_report(benford_audit.canonical_ledger_amounts()).conforms else 'anomalous')"
   # Negative control: the legitimate half of the same ledger, audited alone.
   # Without a conforming baseline the anomalous verdict above would be
   # consistent with a test that flags every ledger put to it.
   - id: benford.legitimate_transactions
     value: 80
-    source: "benford_audit.benford_report(legitimate_ledger_amounts()).transactions"
+    source: "benford_audit.benford_report(benford_audit.legitimate_ledger_amounts()).transactions"
   - id: benford.legitimate_chi_square
     value: 0.5258
-    source: "benford_audit.benford_report(legitimate_ledger_amounts()).chi_square"
+    source: "benford_audit.benford_report(benford_audit.legitimate_ledger_amounts()).chi_square"
   - id: benford.legitimate_verdict
     value: "conforms"
-    source: "benford_audit.benford_report(legitimate_ledger_amounts()).conforms == True"
+    source: "('conforms' if benford_audit.benford_report(benford_audit.legitimate_ledger_amounts()).conforms else 'anomalous')"
   - id: beam.spot_radius_m
     value: 0.564
     source: "beam_physics.beam_metrics()['spot_radius_m']"

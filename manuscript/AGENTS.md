@@ -58,6 +58,7 @@ numbers or `\ref{}` directly:
 | `{#fig:casino}` | `../output/figures/casino_network.png` |
 | `{#fig:benford}` | `../output/figures/benford_ledger.png` |
 | `{#fig:orbital}` | `../output/figures/orbital_visibility.png` |
+| `{#fig:cargo}` | `../output/figures/cargo_sweep.png` |
 | `{#fig:beam}` | `../output/figures/beam_physics.png` |
 
 Regenerate with `scripts/generate_figures.py`; generator code lives in

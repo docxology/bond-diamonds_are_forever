@@ -46,7 +46,7 @@ conditions:
 
 primary_metric: "deterministic reproduction of all result tokens with zero mocks"
 figures:
-  expected: 7
+  expected: 8
   output_dir: output/figures
 manuscript_tokens:
   block: "manuscript/config.yaml + src/diamonds_are_forever/manuscript_variables.py"

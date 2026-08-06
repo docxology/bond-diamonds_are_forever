@@ -51,6 +51,7 @@ the numbered sections must not.
 | `{#fig:benford}` | `../output/figures/benford_ledger.png` | `figures.generate_benford_figure` |
 | `{#fig:orbital}` | `../output/figures/orbital_visibility.png` | `figures.generate_orbital_figure` |
 | `{#fig:beam}` | `../output/figures/beam_physics.png` | `figures.generate_beam_figure` |
+| `{#fig:cargo}` | `../output/figures/cargo_sweep.png` | `figures.generate_cargo_sweep_figure` |
 
 Reference figures via Pandoc-crossref: `[@fig:provenance]` or `@fig:casino`;
 never a hardcoded number. Regenerate figures with

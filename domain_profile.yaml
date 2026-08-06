@@ -26,6 +26,7 @@ artifact_expectations:
   - output/figures/benford_ledger.png     # observed vs Benford digits
   - output/figures/orbital_visibility.png # slant-range / visibility
   - output/figures/beam_physics.png       # irradiance vs mirror diameter
+  - output/figures/cargo_sweep.png       # route reduction vs cargo value
   - output/data/manuscript_variables.json # resolved {{TOKEN}} map
   - output/manuscript/                    # hydrated sections
 

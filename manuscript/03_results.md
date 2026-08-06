@@ -32,6 +32,18 @@ marked.
 
 ![Smuggling corridor expected costs (red = optimum route)](../output/figures/smuggling_route.png){#fig:smuggling}
 
+**Cargo-value sensitivity is reported as measured, not asserted.** The
+optimal route is cargo-dependent: at low cargo value the transport cost
+dominates and cheap corridors win; as the cargo's value grows the seizure
+probability dominates and a low-seizure, more-hop corridor wins instead.
+Figure [@fig:cargo] plots the resulting ``route_reduction`` across a cargo
+sweep. The curve is deliberately *not* monotone — measured it falls and then
+rises as the optimum switches from the Paris leg to the New York leg — so no
+single figure stands in for the dependency, and the canonical
+{{SMUGGLE_CARGO_VALUE_M}} M USD point is marked.
+
+![Route reduction vs. cargo value (canonical {{SMUGGLE_CARGO_VALUE_M}} M USD marked)](../output/figures/cargo_sweep.png){#fig:cargo}
+
 ## Lot forensics
 
 Auditing {{LOT_SAMPLES}} handoff samples of lot {{LOT_ID}} by weight and

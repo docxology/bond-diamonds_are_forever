@@ -17,6 +17,16 @@ The single unresolved item from the adversarial audit
 (`../output/verify/diamonds_are_forever.unresolved.json`) is a scope note, not a
 defect — it is recorded under *Known limitations* below.
 
+**Round-2 verified state, re-measured 2026-08-06:** `uv run pytest tests/
+--cov=src --cov-fail-under=90` → **251 passed, 100.00%** line+branch coverage on
+`src/`, 0 skipped, 0 failed (coverage restored to 100% after the round-2
+additions; the completeness-reference corpus now covers every branch of the
+Johnson enumerator). `ruff check`, `ruff format --check`, and `mypy` are clean;
+the mission input hash is deterministic across runs
+(`0a6e93ab…`); 8 figures and 63 manuscript tokens hydrate; the
+`template[_]code_project` lineage grep shows only intentional doc
+self-references. See the *Round-2 (2026-08-06)* section at the end of this file.
+
 ---
 
 ## Open work
@@ -440,3 +450,90 @@ uv run python scripts/run_mission.py --json
 
 Do not trust the counts quoted in this file; run the commands. `AGENTS.md` and
 `domain_profile.yaml` hold the authoritative gate definitions.
+
+
+---
+
+## Round-2 (2026-08-06)
+
+Round-2 improvement pass: turned the open correctness gap **C3** into a
+complete enumerator, and closed the verification backlog **V1-V7**, **D1**,
+**D2**, **C2**, and the cargo-sweep extension **E4** — each with regression or
+negative-control test evidence (zero mocks).
+
+### Findings fixed (test evidence)
+
+- **C3 — money cycles now enumerate completely (Johnson 1975).**
+  `casino_network.find_money_cycles` was a back-edge DFS that dropped a circuit
+  re-entering an already-visited node, under-reporting `laundering_closure` on
+  overlapping graphs (the TODO's own counterexample). It is replaced by a
+  complete elementary-circuit enumeration (Johnson 1975, following Tarjan
+  1973), verified against an independent brute-force reference. The canonical
+  network is unchanged (3 circuits, closure 0.7742), so no published number
+  moved. Tests:
+  `tests/test_casino_network.py::test_a_circuit_reentering_a_shared_done_node_is_not_lost`
+  (the C3 counterexample now finds both circuits) and
+  `test_enumerator_is_complete_against_a_reference` (reported set == reference
+  set, no duplicates, including the recursive-unblock arms). Manuscript
+  `02_methodology.md` and `07_scope_and_related_work.md` now state complete
+  enumeration; `johnson1975` added to `references.bib`.
+- **C2 — `bond-api` path is relative.** `pyproject.toml`
+  `[tool.uv.sources]` changed from an absolute machine path to
+  `{ path = "../bond-api" }`. Verified by copying the whole bond tree to another
+  path, `uv sync --extra dev`, and passing the suite there.
+- **V1 — claim ledger self-binding.** `data/claim_ledger.yaml` sources
+  rewritten as executable expressions; `tests/test_claims.py` asserts the exact
+  21-id set and recomputes every row from its `source` (1% relative tolerance
+  for rounded floats). A row added without a source, or a source that drifts,
+  now fails.
+- **V2 — beam slant range bound to geometry.** The beam scenario's 36,998.4 km
+  is asserted equal to the geometry's Washington DC slant range
+  (`test_round2_verification.py::test_beam_slant_range_binds_to_the_geometry_it_claims`).
+- **V3 — package version single-sourced.** pyproject, `__init__.__version__`,
+  `mission.PACKAGE_VERSION`, and the manuscript config version are asserted
+  equal.
+- **V4 — token gate closed both ways.** A generated-but-uncited token (orphan)
+  now fails, alongside the existing unknown-token forward gate.
+- **V5 — pure-core importability tested.** A subprocess installs a
+  `sys.meta_path` blocker for `bond_api` and asserts the seven pure modules
+  (plus manifest/figures) import while `mission` is the only failure.
+- **V6 — figure content bound + byte-identity.** `figures.py` gains
+  `benford_figure_data()` / `cargo_sweep_figure_data()`; tests assert the
+  plotted series equal the authoritative core, and a byte-identity test proves
+  all eight renders are reproducible.
+- **V7 — ablation rows enforced.** Recomputed for lot forensics (widen density
+  window -> only `excessive_loss`, verdict `suspicious`) and corridors (single
+  chain -> reduction exactly 0).
+- **D1 — Airy encircled-energy named.** The full-power-inside-first-null
+  assumption (≈83.8% inside the first null, ≈1.19x optimistic irradiance,
+  ≈4.6% small diameter) is now cited in `07_scope_and_related_work.md`'s
+  Limitations and in the `beam_physics` module docstring.
+- **D2 — `tests/PATTERNS.md` fixed.** `OrbitalsSatellite` ->
+  `orbital_mirror.Satellite` (with import), plus the completeness and
+  two-way-token patterns.
+- **E4 — cargo-value sweep (as measured, honest).** Added
+  `smuggling_routes.cargo_reduction_sweep` and `CargoSweepPoint`, the live
+  8th figure `cargo_sweep.png` (bound in `03_results.md` / figure protocols),
+  and `experiment_plan.yaml` / `domain_profile.yaml` updates. Sweeping revealed
+  the TODO's proposed "monotone reduction" premise is **false** for this
+  network: reduction is non-negative but dips then rises as the optimum
+  switches from the Paris leg to the New York leg — the sweep is reported and
+  tested as measured, with no monotone trend asserted.
+
+### Gate numbers (re-measured 2026-08-06)
+
+- `uv run pytest tests/ --cov=src --cov-fail-under=90` → **251 passed**,
+  **100.00%** line+branch coverage, **0 skipped / 0 failed** (234 passed before
+  round-2 additions).
+- `uv run ruff check src/ scripts/` — clean; `uv run ruff format --check
+  src/ scripts/` — 26 files formatted; `uv run mypy src/ scripts/` — no issues
+  in 20 files.
+- Determinism: two mission runs print the same input hash (`0a6e93ab…`);
+  8 figures and 63 tokens hydrate; `template[_]code_project` lineage grep
+  returns only the intentional doc self-references.
+
+### Left for a future round
+
+- **E1** (provenance-export CLI), **E2** (satellite strike scheduling), and
+  **E3** (a second forensic channel, e.g. refractive index) remain open
+  extensions — untouched this round, and still valid as written.

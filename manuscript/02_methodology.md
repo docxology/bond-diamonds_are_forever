@@ -22,7 +22,10 @@ The expected cost of a corridor is `cost + p_seizure * cargo_value`. A
 deterministic Dijkstra over expected cost returns the **least-risk route**, its
 expected cost, and its survival (`product(1 - p)`). A fewest-hops BFS baseline
 in the *same* graph bounds the **reduction** metric, which is therefore always
-non-negative.
+non-negative. The optimum is *cargo-dependent*: cheap corridors win at low
+cargo value, low-seizure corridors at high cargo value, so the reduction is
+reported as measured across a cargo sweep rather than as a single monotone
+trend.
 
 ## Lot forensics
 
@@ -42,10 +45,14 @@ two or more as *flagrant*.
 The Las Vegas network is a directed, weighted graph whose edges aggregate
 inter-casino transfers. The analysis computes gross flow, net positions, the
 network **hub** (greatest gross flow — a degree-style centrality in the sense
-of [@freeman1978]), the directed **money cycles** (laundering loops, enumerated
-by a deterministic depth-first search over back edges, the classical circuit
-problem of [@tarjan1973]), and the **laundering closure** — the fraction of
-flow that sits on a cycle.
+of [@freeman1978]), the directed **money cycles** (laundering loops,
+enumerated *completely* — each elementary circuit exactly once — by Johnson's
+algorithm [@johnson1975], the classical circuit-enumeration problem of
+[@tarjan1973]), and the **laundering closure** — the fraction of flow that
+sits on a cycle. Completeness matters here: a back-edge DFS would quietly drop
+a circuit that re-enters an already-traversed node, under-reporting the
+closure, which is exactly the class of omission a rights-the-books laundering
+screen must not commit.
 
 ## Benford's-law ledger audit
 
@@ -94,4 +101,8 @@ budget `P = S * (pi D^2 / 4) * T` sets the captured flux, and the dwell time
 `I = S * T * D^4 / (4 * 1.22^2 * lambda^2 * R^2)`; inverting it for `D` yields
 the **minimum mirror diameter** that delivers a required irradiance at a given
 range — the honest bound on the weapon's fantasy, and the reason the result
-scales only as the fourth root of the demanded irradiance.
+scales only as the fourth root of the demanded irradiance. The model assumes
+the full captured power lands inside the first-null disk; the real Airy pattern
+puts ≈83.8% inside it (see *Scope and Related Work*), pushing the same
+direction as the other omissions, so the minimum diameter remains a lower
+bound.
