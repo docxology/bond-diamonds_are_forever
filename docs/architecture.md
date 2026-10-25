@@ -17,7 +17,7 @@ src/diamonds_are_forever/
   beam_physics.py          pure core — diffraction spot, attenuation, vaporization, min mirror
   mission.py               adapter — MissionProvider (brief/recon/plan/execute/debrief)
   manuscript_variables.py  {{TOKEN}} hydration (config.yaml + pure core)
-  figures.py               deterministic figure generation (7 PNGs)
+  figures.py               deterministic figure generation (8 PNGs)
 scripts/
   brief.py recon.py plan.py execute.py debrief.py   phase CLIs
   run_mission.py           full flow (+ --json)

@@ -12,8 +12,10 @@ Deterministic, coverage-gated, mock-free test suite.
 | `test_orbital_mirror.py` | occultation, slant range, elevation, beam power, validation |
 | `test_beam_physics.py` | diffraction, attenuation, vaporization, min-mirror, validation |
 | `test_mission.py` | MissionProvider lifecycle, protocol, discovery, gadgets, serialization |
+| `test_claims.py` | every `data/claim_ledger.yaml` row recomputed from its `source` |
+| `test_round2_verification.py` | round-2 bindings: version single-sourcing, beam slant range, cycle-enumerator completeness |
 | `test_manuscript_variables.py` | token map + live `{{TOKEN}}` cross-reference gate |
-| `test_figures.py` | 7 deterministic PNG figures |
+| `test_figures.py` | 8 deterministic PNG figures |
 | `test_scripts_smoke.py` | subprocess phase-CLI + generator smoke |
 
 Run: `uv run pytest tests/ --cov=src --cov-fail-under=90`. See

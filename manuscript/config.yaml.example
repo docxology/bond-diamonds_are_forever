@@ -1,5 +1,5 @@
 # Example manuscript configuration for diamonds_are_forever (CONFLICT STONE).
-# Copy to config.yaml and adjust. Loaded by manuscripts_variables.py.
+# Copy to config.yaml and adjust. Loaded by manuscript_variables.py.
 
 paper:
   title: "Diamonds Are Forever: CONFLICT STONE — Special-Agent Mission Software"

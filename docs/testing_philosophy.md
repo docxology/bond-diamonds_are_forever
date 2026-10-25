@@ -28,8 +28,10 @@ computations over the frozen canonical datasets and the real BOND-API protocol.
 | `test_orbital_mirror.py` | occultation, slant range, elevation, beam power, validation errors |
 | `test_beam_physics.py` | diffraction spot, Beer-Lambert, vaporization, min-mirror inversion |
 | `test_mission.py` | MissionProvider lifecycle, protocol check, discovery, gadgets, serialization |
+| `test_claims.py` | claim-ledger rows recomputed from their `source` expressions |
+| `test_round2_verification.py` | version single-sourcing, beam slant range vs. geometry, enumerator completeness |
 | `test_manuscript_variables.py` | token map, constant-derivation bindings, live `{{TOKEN}}` cross-reference gate |
-| `test_figures.py` | deterministic PNG output (7 figures) |
+| `test_figures.py` | deterministic PNG output (8 figures) |
 | `test_scripts_smoke.py` | subprocess runs of every phase CLI + generators |
 
 ## Pattern notes

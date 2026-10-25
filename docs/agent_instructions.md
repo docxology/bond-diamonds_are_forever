@@ -5,9 +5,10 @@ film package.
 
 ## Scope
 
-Work **only** inside `projects/working/bond/diamonds_are_forever/`. Do not
-touch sibling bond packages, the bond root, or the template repo. This is a
-**local-only** tree — there is no remote and nothing is pushed.
+Work **only** inside this repository. Do not touch sibling bond packages, the
+bond root, or the template repo. The tree is published at
+`github.com/docxology/bond-diamonds_are_forever` (`origin`, default branch
+`main`): commit and push only in-scope changes here.
 
 ## Guardrails
 

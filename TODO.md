@@ -14,7 +14,7 @@ what is left.
 `ruff format --check`, and `mypy src/ scripts/` are clean, the
 `template[_]code_project` lineage grep is empty, and `git status` is clean.
 The single unresolved item from the adversarial audit
-(`../output/verify/diamonds_are_forever.unresolved.json`) is a scope note, not a
+(`output/verify/diamonds_are_forever.unresolved.json`) is a scope note, not a
 defect — it is recorded under *Known limitations* below.
 
 **Round-2 verified state, re-measured 2026-08-06:** `uv run pytest tests/
@@ -371,7 +371,7 @@ Accepted and deliberate. Recorded here so they are not re-litigated as defects.
 
 - **The Benford result is a specificity check on two constructed fixtures, not a
   detection rate.** This is the one unresolved entry in
-  `../output/verify/diamonds_are_forever.unresolved.json`. Both halves of the
+  `output/verify/diamonds_are_forever.unresolved.json`. Both halves of the
   canonical ledger — the Fibonacci-derived negative control
   (`benford_audit.py:207-226`) and the round-figure deposits (`:229-247`) — are
   designed, not empirical. What is established is that this implementation
@@ -394,10 +394,11 @@ Accepted and deliberate. Recorded here so they are not re-litigated as defects.
   corridors, seven casinos, 141 ledger transactions, three targets. They are
   chosen so each headline metric is non-trivial rather than vacuous
   (`manuscript/06_reproducibility.md:19-24`); they are not samples of anything.
-- **This tree is standalone and local-only by design.** No remote, nothing
-  pushed, and no `docs/_generated/` equivalents. Re-wiring it into the monorepo
-  pipeline is out of scope unless that changes. (C2 is about the *dependency
-  path*, not about this.)
+- **This tree is standalone, and published on its own.** `origin` is
+  `github.com/docxology/bond-diamonds_are_forever`; there are no
+  `docs/_generated/` equivalents and no monorepo pipeline. Re-wiring it into
+  one is out of scope unless that changes. (C2 is about the *dependency path*,
+  not about this.)
 - **Coverage omits `*/__init__.py`** (`pyproject.toml:47-51`).
   `src/diamonds_are_forever/__init__.py` is a docstring plus `__version__`,
   `FILM`, and `CODENAME` — no logic to cover.
@@ -413,7 +414,7 @@ The gates for this package, in the order to run them. All four were green in thi
 tree on 2026-08-05, after the C1 fix.
 
 ```bash
-cd projects/working/bond/diamonds_are_forever
+cd "$(git rev-parse --show-toplevel)"                   # this package's repository root
 uv sync --extra dev                                    # wires the bond-api path dependency; required before pytest
 
 uv run pytest tests/ --cov=src --cov-fail-under=90     # expect: 234 passed, 100.00% coverage, 0 skips
@@ -425,7 +426,7 @@ uv run mypy src/ scripts/                              # expect: Success: no iss
 Then confirm the tree regenerates and the lineage is clean:
 
 ```bash
-uv run python scripts/generate_figures.py                   # 7 PNGs under output/figures/
+uv run python scripts/generate_figures.py                   # 8 PNGs under output/figures/
 uv run python scripts/z_generate_manuscript_variables.py    # strict: an unresolved {{TOKEN}} fails the run
 rg -n "template[_]code_project" .                           # expect: zero hits
 git status                                                  # expect: clean after committing (output/ is ignored)

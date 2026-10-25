@@ -27,7 +27,7 @@ The last one is the point of the exercise: the film's weapon is bounded by
 optics, and the module says by how much rather than taking the plot's word for
 it.
 
-Supporting modules: `mission.py` (the protocol adapter), `figures.py` (seven
+Supporting modules: `mission.py` (the protocol adapter), `figures.py` (eight
 deterministic PNGs), `manuscript_variables.py` (`{{TOKEN}}` hydration).
 
 ## The MissionProvider surface

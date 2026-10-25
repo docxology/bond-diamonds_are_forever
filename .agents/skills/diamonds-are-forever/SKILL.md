@@ -3,7 +3,7 @@
 ## When to use
 
 Use when building or maintaining the **diamonds_are_forever** BOND film
-package (`projects/working/bond/diamonds_are_forever/`), mission codename
+package (repository `docxology/bond-diamonds_are_forever`), mission codename
 **CONFLICT STONE** (deepening phase **DIAMOND NET**): conflict-diamond
 provenance, corridor routing, lot forensics, casino money movement, Benford's
 ledger audit, orbital-mirror targeting, and beam-delivery physics.
@@ -20,7 +20,7 @@ ledger audit, orbital-mirror targeting, and beam-delivery physics.
 - Manifest: `manuscript_variables.py` hydrates every `{{TOKEN}}` from
   `manuscript/config.yaml` + the core (run
   `scripts/z_generate_manuscript_variables.py` for the live count and values);
-  `figures.py` renders 7 deterministic PNGs.
+  `figures.py` renders 8 deterministic PNGs.
 - Model constants the manuscript quotes (cutting allowance, density window,
   Benford df/alpha/critical value, strike-irradiance requirement, beam
   scenario) are exported as named constants and cited as tokens — never

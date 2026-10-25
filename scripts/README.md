@@ -19,7 +19,7 @@ forwards to the core or the mission adapter.
 
 | Script | Produces |
 |---|---|
-| `generate_figures.py` | `output/figures/{provenance_chain,casino_network,orbital_visibility}.png` |
+| `generate_figures.py` | all eight PNGs under `output/figures/` (`provenance_chain`, `smuggling_route`, `lot_forensics`, `casino_network`, `benford_ledger`, `orbital_visibility`, `beam_physics`, `cargo_sweep`) |
 | `z_generate_manuscript_variables.py` | `output/data/manuscript_variables.json` + hydrated `output/manuscript/` |
 
 Run from the package root: `uv run python scripts/<name>.py`.

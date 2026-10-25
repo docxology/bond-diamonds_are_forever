@@ -2,13 +2,16 @@
 
 BOND film package **Diamonds Are Forever (1971)** · mission codename **CONFLICT
 STONE** (deepening phase **DIAMOND NET**). One package in the PROJECT BOND
-suite at `projects/working/bond/` (local-only working tree, no remote).
+suite, published at `github.com/docxology/bond-diamonds_are_forever` (`origin`,
+default branch `main`).
 
 ## Scope & guardrails
 
 - **Scope is exactly this directory.** Never touch sibling bond packages, bond
   root files, or the template repo.
-- **Local-only.** There is no remote; never push.
+- **Publish deliberately.** `origin` is the package's own repository; push only
+  in-scope commits to `main`, never force-push, and never commit generated
+  artifacts (`output/` is git-ignored).
 - **Path-scoped commits**: `git add -A` inside this repo only.
 - **No mock framework.** Real data + computation only.
 - **≥90% line+branch coverage** on `src/`.
@@ -43,7 +46,7 @@ uv run mypy src/ scripts/
 Then confirm the tree is consistent and the lineage is clean:
 
 ```bash
-uv run python scripts/generate_figures.py                  # 7 PNGs under output/figures/
+uv run python scripts/generate_figures.py                  # 8 PNGs under output/figures/
 uv run python scripts/z_generate_manuscript_variables.py    # strict: unresolved {{TOKEN}} fails
 rg -n "template[_]code_project"                             # must be zero hits
 git status                                                  # must be clean after committing

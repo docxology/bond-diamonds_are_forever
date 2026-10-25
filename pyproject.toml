@@ -3,13 +3,14 @@
 # MissionProvider adapter over the frozen BOND-API protocol.
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "diamonds_are_forever"
 version = "0.1.0"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 description = "CONFLICT STONE — special-agent mission software: conflict-diamond provenance, Las Vegas casino money movement, orbital-mirror targeting geometry"
 authors = [
     {name = "Daniel Ari Friedman", email = "daniel@activeinference.institute"}
@@ -17,17 +18,17 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
     "bond-api",
-    "matplotlib>=3.7.0",
-    "pyyaml>=6.0",
+    "matplotlib>=3.10",
+    "pyyaml>=6.0.3",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.6.0",
-    "mypy>=1.10.0",
-    "types-PyYAML>=6.0",
+    "pytest>=9.0",
+    "pytest-cov>=7.0",
+    "ruff>=0.16",
+    "mypy>=2.3",
+    "types-PyYAML>=6.0.12",
 ]
 
 # bond-api is the frozen protocol dependency, consumed as a local path package.

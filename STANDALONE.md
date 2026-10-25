@@ -11,10 +11,11 @@ deterministic, auditable analysis of (1) a smuggled conflict-diamond provenance
 chain, (2) Las Vegas casino money movement, and (3) orbital-mirror targeting
 geometry — exposed through the BOND-API `MissionProvider` lifecycle.
 
-## Local-only
+## Publication
 
-This is a **local-only working tree**: there is no remote, and nothing in this
-package may be pushed. Metadata sidecars (`.zenodo.json`, `CITATION.cff`,
+This tree is published at `github.com/docxology/bond-diamonds_are_forever`
+(`origin`, default branch `main`); commits and pushes stay path-scoped to this
+repository. Metadata sidecars (`.zenodo.json`, `CITATION.cff`,
 `codemeta.json`) therefore carry **no DOI or repository fields**.
 
 ## What this package guarantees
