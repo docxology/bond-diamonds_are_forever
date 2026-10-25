@@ -14,7 +14,8 @@ what is left.
 `ruff format --check`, and `mypy src/ scripts/` are clean, the
 `template[_]code_project` lineage grep is empty, and `git status` is clean.
 The single unresolved item from the adversarial audit
-(`output/verify/diamonds_are_forever.unresolved.json`) is a scope note, not a
+(`output/verify/diamonds_are_forever.unresolved.json` recorded in the BOND
+workspace, outside this repository) is a scope note, not a
 defect — it is recorded under *Known limitations* below.
 
 **Round-2 verified state, re-measured 2026-08-06:** `uv run pytest tests/
@@ -240,8 +241,8 @@ asserts `mission` is the *only* module that fails.
 and the `\x89PNG` magic bytes. A figure that plotted the wrong series, dropped a
 data set, or rendered blank axes would pass all eight tests, and `figures.py` is
 at 100% coverage regardless — executed is not correct. Renders *are* byte-stable
-run to run (measured: identical SHA-256 for all seven PNGs across two separate
-output directories), but no test asserts that either.
+run to run (measured: identical SHA-256 for all rendered PNGs across two
+separate output directories), but no test asserts that either.
 
 **Done:** each figure test binds at least one datum from the pure core to the
 rendered artifact (e.g. the Benford figure's bar heights equal
@@ -370,8 +371,9 @@ assumed).
 Accepted and deliberate. Recorded here so they are not re-litigated as defects.
 
 - **The Benford result is a specificity check on two constructed fixtures, not a
-  detection rate.** This is the one unresolved entry in
-  `output/verify/diamonds_are_forever.unresolved.json`. Both halves of the
+  detection rate.** This is the one unresolved entry in that BOND-workspace
+  audit artifact (`output/verify/diamonds_are_forever.unresolved.json`). Both
+  halves of the
   canonical ledger — the Fibonacci-derived negative control
   (`benford_audit.py:207-226`) and the round-figure deposits (`:229-247`) — are
   designed, not empirical. What is established is that this implementation
