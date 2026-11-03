@@ -15,7 +15,7 @@ description = "CONFLICT STONE — special-agent mission software: conflict-diamo
 authors = [
     {name = "Daniel Ari Friedman", email = "daniel@activeinference.institute"}
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "bond-api",
     "matplotlib>=3.10",
