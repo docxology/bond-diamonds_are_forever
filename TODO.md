@@ -98,8 +98,9 @@ uv run python scripts/z_generate_manuscript_variables.py && cp output/data/manus
 
 **This item described a tree that no longer exists, and nothing here needed changing but the
 item.** `pyproject.toml:36` already reads `bond-api = { path = "../bond-api" }`, and the
-`uv.lock` beside it carries no absolute path and agrees with the package's own
-`requires-python = ">=3.10"`, so there is nothing to regenerate either. The item named
+`uv.lock` beside it carries no absolute path and agreed with the package's own floor, then
+`requires-python = ">=3.10"` (raised to `>=3.11` later the same day — see the note below), so
+there is nothing to regenerate either. The item named
 `pyproject.toml:35` and reprinted an absolute path on the author's machine; the defect had been
 fixed without the backlog entry being closed, so the prose outlived it by an unknown interval.
 Closing it rather than leaving a document that contradicts its own manifest.
@@ -116,6 +117,16 @@ that claim is now true as written.
 cp -R ../../bond "$TMPDIR/bondcopy" && cd "$TMPDIR/bondcopy/diamonds_are_forever" \
   && uv sync --extra dev && uv run pytest tests/ -q
 ```
+
+**Floor raised 2026-11-03, after this closure: `>=3.10` → `>=3.11`.** The floor must not sit
+below the floor of the package it depends on, and here it did: `bond-api` declares
+`requires-python = ">=3.11"`. While this package declared `>=3.10`, the lock could not be
+regenerated at all — `uv lock` in a fresh copy stops with "the requested Python version (>=3.10)
+does not satisfy Python>=3.11 and bond-api==0.1.0 depends on Python>=3.11" — so no dependency
+update for this package could resolve. `pyproject.toml:18` and `uv.lock` line 3 now read
+`">=3.11"`, and the regenerated lock dropped its dead `python_full_version < '3.11'` forks
+(`contourpy 1.3.2`, `exceptiongroup 1.3.1`, `numpy 2.2.6`) with no other pin moving. The floor
+value quoted in the text above is what it was when the item closed.
 
 #### C3 — `find_money_cycles` is cited as elementary-circuit enumeration, but is a back-edge DFS
 
