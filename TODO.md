@@ -94,23 +94,22 @@ uv run python scripts/z_generate_manuscript_variables.py && cp output/data/manus
 
 </details>
 
-#### C2 — The `bond-api` dependency is an absolute machine path
+#### C2 — closed 2026-11-03: the `bond-api` dependency is the sibling-relative form
 
-`pyproject.toml:35`:
+**This item described a tree that no longer exists, and nothing here needed changing but the
+item.** `pyproject.toml:36` already reads `bond-api = { path = "../bond-api" }`, and the
+`uv.lock` beside it carries no absolute path and agrees with the package's own
+`requires-python = ">=3.10"`, so there is nothing to regenerate either. The item named
+`pyproject.toml:35` and reprinted an absolute path on the author's machine; the defect had been
+fixed without the backlog entry being closed, so the prose outlived it by an unknown interval.
+Closing it rather than leaving a document that contradicts its own manifest.
 
-```toml
-bond-api = { path = "/Users/4d/Documents/GitHub/template/projects/working/bond/bond-api" }
-```
+`STANDALONE.md` calls this a standalone package that another operator can clone and `uv sync`;
+that claim is now true as written.
 
-`STANDALONE.md` calls this a standalone package that another operator can clone
-and `uv sync`. With an absolute path baked in, relocating or copying the bond
-tree breaks `uv sync --extra dev`, and every test in `tests/test_mission.py`
-(which imports `bond_api` for real) fails at collection. The sibling layout is
-already fixed by the suite, so `{ path = "../bond-api" }` expresses the same
-dependency without pinning one machine.
-
-**Done:** the `[tool.uv.sources]` entry is relative, and `uv sync --extra dev`
-plus the full suite pass from a copy of the bond tree at a different path.
+**Closure measured 2026-11-03:** from a copy of the package relocated to a different path with
+`../bond-api` beside it, `uv sync --extra dev` succeeds (`rc=0`) and the full suite is
+**251 passed**.
 
 **Command:**
 ```bash
