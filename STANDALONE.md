@@ -2,7 +2,8 @@
 
 `diamonds_are_forever` is a **standalone BOND film package** whose analytic
 core is pure and infrastructure-free. It depends only on the frozen `bond-api`
-protocol (a local path dependency) plus standard scientific libraries.
+protocol (vendored at `vendor/bond-api`, with its provenance in that directory's
+`VENDOR.md`) plus standard scientific libraries.
 
 ## Purpose
 

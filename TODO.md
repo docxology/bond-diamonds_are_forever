@@ -97,10 +97,12 @@ uv run python scripts/z_generate_manuscript_variables.py && cp output/data/manus
 #### C2 — closed 2026-11-03: the `bond-api` dependency is the sibling-relative form
 
 **This item described a tree that no longer exists, and nothing here needed changing but the
-item.** `pyproject.toml:36` already reads `bond-api = { path = "../bond-api" }`, and the
-`uv.lock` beside it carries no absolute path and agreed with the package's own floor, then
-`requires-python = ">=3.10"` (raised to `>=3.11` later the same day — see the note below), so
-there is nothing to regenerate either. The item named
+item.** When it closed, `pyproject.toml:36` read `bond-api = { path = "../bond-api" }`, and the
+`uv.lock` beside it carried no absolute path and agreed with the package's own floor, then
+`requires-python = ">=3.10"` (raised to `>=3.11` later the same day — see the note below). The
+vendoring round then moved that dependency into the tree and regenerated the lock against the
+copy, so the manifest now reads `vendor/bond-api`; the sentence above describes what was
+measured at closure. The item named
 `pyproject.toml:35` and reprinted an absolute path on the author's machine; the defect had been
 fixed without the backlog entry being closed, so the prose outlived it by an unknown interval.
 Closing it rather than leaving a document that contradicts its own manifest.
@@ -127,6 +129,15 @@ update for this package could resolve. `pyproject.toml:18` and `uv.lock` line 3 
 `">=3.11"`, and the regenerated lock dropped its dead `python_full_version < '3.11'` forks
 (`contourpy 1.3.2`, `exceptiongroup 1.3.1`, `numpy 2.2.6`) with no other pin moving. The floor
 value quoted in the text above is what it was when the item closed.
+
+**Vendored 2026-11-03, after the floor raise: the dependency moved into the tree.** The sibling
+path resolves only in the bond suite checkout. A copy of this package with no sibling beside it
+failed `uv lock --check`, `uv lock` and `uv sync --extra dev` at `rc=2` with "Distribution not
+found at: file:///<parent>/bond-api"; with a sibling beside it, `uv lock` failed at `rc=1` on the
+3.10 split the floor note above describes. The copy now lives at `vendor/bond-api` (upstream
+`c0362ff0c9d7`), bound by `scripts/vendor.py` and `tests/test_vendor_provenance.py`, and
+`uv.lock` records `source = { directory = "vendor/bond-api" }` with no `../bond-api` reference
+left. `STANDALONE.md` and the comment above `[tool.uv.sources]` name the copy.
 
 #### C3 — `find_money_cycles` is cited as elementary-circuit enumeration, but is a back-edge DFS
 

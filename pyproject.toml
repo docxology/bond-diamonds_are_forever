@@ -31,7 +31,7 @@ dev = [
     "types-PyYAML>=6.0.12",
 ]
 
-# bond-api is the frozen protocol dependency, consumed as a local path package.
+# bond-api is the frozen protocol dependency, vendored at vendor/bond-api.
 [tool.uv.sources]
 bond-api = { path = "vendor/bond-api" }
 
