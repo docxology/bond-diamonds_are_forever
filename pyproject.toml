@@ -31,9 +31,9 @@ dev = [
     "types-PyYAML>=6.0.12",
 ]
 
-# bond-api is the frozen protocol dependency, consumed as a local path package.
+# bond-api is the frozen protocol dependency, vendored at vendor/bond-api.
 [tool.uv.sources]
-bond-api = { path = "../bond-api" }
+bond-api = { path = "vendor/bond-api" }
 
 [tool.pytest.ini_options]
 pythonpath = [".", "src"]
@@ -64,6 +64,8 @@ exclude_lines = [
 [tool.mypy]
 # Project-local mypy config (the monorepo root has no mypy_path for this
 # package's src/ layout). Stricter typing with explicit package bases.
+# Vendored copies are a dependency; their bytes are bound by scripts/vendor.py.
+exclude = ["(^|/)vendor/"]
 python_version = "3.12"
 mypy_path = ["src"]
 explicit_package_bases = true
@@ -77,6 +79,8 @@ warn_unused_ignores = true
 ignore_missing_imports = true
 
 [tool.ruff]
+# The vendored copies are byte-identical to upstream and must stay that way.
+extend-exclude = ["vendor"]
 line-length = 100
 
 [tool.uv]
