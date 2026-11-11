@@ -561,3 +561,7 @@ negative-control test evidence (zero mocks).
 - **E1** (provenance-export CLI), **E2** (satellite strike scheduling), and
   **E3** (a second forensic channel, e.g. refractive index) remain open
   extensions — untouched this round, and still valid as written.
+
+## Workflowz review — 2026-11-10
+
+Bounded review coverage: the supplied excerpts of `AGENTS.md`, `README.md`, `TODO.md`, `pyproject.toml`, `scripts/run_mission.py`, `src/diamonds_are_forever/__init__.py`, `src/diamonds_are_forever/provenance_chain.py`, `src/diamonds_are_forever/orbital_mirror.py`, and the visible portion of `src/diamonds_are_forever/lot_forensics.py` were inspected for correctness, validation, runtime/dependency pins, production substitutes, and test-backed claims. No new independently closable finding has exact sufficient evidence in this packet: C3 and V1–V3 are already tracked in the existing TODO, and the visible runtime floor is `>=3.11` with the documented `bond-api >=3.11` constraint, so no unsupported interpreter or dependency upgrade is proposed. Re-review on a concrete failure or source change in these areas, with the changed implementation and its direct test/runtime evidence.
