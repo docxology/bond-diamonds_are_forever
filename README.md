@@ -4,6 +4,30 @@ Special-agent mission software for the BOND film package **Diamonds Are Forever
 (1971)** — mission codename **CONFLICT STONE** (deepening phase: **DIAMOND
 NET**).
 
+## Mission model
+
+```mermaid
+flowchart TD
+    accTitle: Diamonds Are Forever implemented mission analyses
+    accDescr: Diamond custody records, corridor legs, parcel weights, casino transfers and GEO mirror geometry feed Custody chain break-point detection, Dijkstra smuggling routing and parcel swap forensics; Casino transfer cycle detection and leading-digit Pearson chi-square Benford audit; GEO mirror occultation/slant geometry and diffraction plus Beer-Lambert beam power budget. The mission adapter returns custody breaks, corridor risk, laundering verdicts and beam flux limits with provenance, then a debrief.
+    I["Diamond custody records, corridor legs, parcel weights, casino transfers and GEO mirror geometry"]
+    G0["Custody chain break-point detection, Dijkstra smuggling routing and parcel swap forensics"]
+    I --> G0
+    G1["Casino transfer cycle detection and leading-digit Pearson chi-square Benford audit"]
+    I --> G1
+    G2["GEO mirror occultation/slant geometry and diffraction + Beer-Lambert beam power budget"]
+    I --> G2
+    O["mission.py: execute returns MissionOutcome<br/>Custody breaks, corridor risk, laundering verdicts, beam flux limits and provenance"]
+    G0 --> O
+    G1 --> O
+    G2 --> O
+    O --> F["debrief: mission summary"]
+```
+
+The branches group implemented capabilities; they do not imply a runtime order.
+
+**Source map:** [`provenance_chain.py`](src/diamonds_are_forever/provenance_chain.py), [`smuggling_routes.py`](src/diamonds_are_forever/smuggling_routes.py), [`lot_forensics.py`](src/diamonds_are_forever/lot_forensics.py); [`casino_network.py`](src/diamonds_are_forever/casino_network.py), [`benford_audit.py`](src/diamonds_are_forever/benford_audit.py); [`orbital_mirror.py`](src/diamonds_are_forever/orbital_mirror.py), [`beam_physics.py`](src/diamonds_are_forever/beam_physics.py); [`mission.py`](src/diamonds_are_forever/mission.py).
+
 ## The film as a specification
 
 *Diamonds Are Forever* is one operation seen end to end: stones leave an
