@@ -1,5 +1,7 @@
 # docs/ — AGENTS.md
 
+[Package maintenance](package-maintenance.md) identifies the dependency and citation records.
+
 Rules for editing documentation in this BOND film package.
 
 - Keep every claim traceable to code: when a metric changes, update the
