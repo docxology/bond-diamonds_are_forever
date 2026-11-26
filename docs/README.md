@@ -1,5 +1,7 @@
 # docs/ — diamonds_are_forever (CONFLICT STONE · DIAMOND NET)
 
+[Package maintenance](package-maintenance.md) covers dependency and release records.
+
 Agent- and human-facing documentation for the BOND film package *Diamonds Are
 Forever (1971)*. Four documents, each answering a different question.
 
