@@ -1,6 +1,7 @@
 # Diamonds Are Forever — CONFLICT STONE · DIAMOND NET
 
-See [package maintenance](docs/package-maintenance.md) for dependency and citation records.
+For the distribution version, checkout Python selection, dependency sources,
+and citation records, see [package maintenance](docs/package-maintenance.md).
 
 Special-agent mission software for the BOND film package **Diamonds Are Forever
 (1971)** — mission codename **CONFLICT STONE** (deepening phase: **DIAMOND
