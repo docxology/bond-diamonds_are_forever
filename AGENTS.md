@@ -1,5 +1,8 @@
 # diamonds_are_forever — AGENTS.md
 
+The [package maintenance guide](docs/package-maintenance.md) records the
+distribution identity, Python selection, dependency provenance, and citation metadata.
+
 BOND film package **Diamonds Are Forever (1971)** · mission codename **CONFLICT
 STONE** (deepening phase **DIAMOND NET**). One package in the PROJECT BOND
 suite, published at `github.com/docxology/bond-diamonds_are_forever` (`origin`,
